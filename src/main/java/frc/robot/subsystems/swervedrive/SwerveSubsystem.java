@@ -599,4 +599,12 @@ public class SwerveSubsystem extends SubsystemBase
   {
     return swerveDrive.getMaximumAngularVelocity();
   }
+
+  /**
+   * Disables heading correction for teleop
+   */
+  public void disableHeadingCorrection()
+  {
+    swerveDrive.setHeadingCorrection(false);
+  }
 }

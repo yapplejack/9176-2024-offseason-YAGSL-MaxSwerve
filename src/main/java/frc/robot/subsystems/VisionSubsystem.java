@@ -108,7 +108,7 @@ public class VisionSubsystem extends SubsystemBase {
     velocities[1] *= Constants.MAX_SPEED;
     velocities[1] *= -1.0;
 
-    if(Math.abs(LimelightHelpers.getTX("limelight")) < 1.0 && 
+    if(Math.abs(LimelightHelpers.getTX("limelight")) < 1.2 && 
       Math.abs(LimelightHelpers.getTY("limelight")) < 1.0 && 
       Math.abs(LimelightHelpers.getTX("limelight")) != 0.0)
     {
