@@ -20,17 +20,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final TalonFX m_shooterLeft = new TalonFX(KrakenMotorConstants.kShooterLeftDeviceId);
     private final TalonFX m_shooterRight = new TalonFX(KrakenMotorConstants.kShooterRightDeviceId);
 
-  private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(Constants.ShooterConstants.kS, Constants.ShooterConstants.kV, 0);
-
-  private boolean wasClosedLoop = false;
-  private boolean closedLoop = false;
-
-private final VelocityTorqueCurrentFOC velocityControl =
-    new VelocityTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
-
-
- 
-
     public ShooterSubsystem() {
         m_shooterLeft.setInverted(true);
         m_shooterLeft.setNeutralMode(NeutralModeValue.Coast);

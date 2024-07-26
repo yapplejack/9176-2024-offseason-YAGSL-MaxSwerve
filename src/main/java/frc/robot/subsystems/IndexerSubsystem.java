@@ -15,7 +15,7 @@ import frc.robot.Constants.KrakenMotorConstants;
 public class IndexerSubsystem extends SubsystemBase {
     private final TalonFX m_indexer = new TalonFX(KrakenMotorConstants.kIdexerDeviceID);
     
-    private boolean noteDetected = false;
+    public boolean noteDetected = false;
     private final I2C.Port i2cPort = I2C.Port.kOnboard;
     private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
     private final ColorMatch m_colorMatcher = new ColorMatch();
@@ -37,6 +37,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public void periodic()
     {
         //SmartDashboard.putBoolean("Note Detected", noteDetected);
+        DetectColor();
+        SmartDashboard.putBoolean("Indexer/Note Detected", noteDetected);
     }
 
     public void RunIndexer(double speed) {
@@ -47,16 +49,12 @@ public class IndexerSubsystem extends SubsystemBase {
     {
         Color detectedColor = m_colorSensor.getColor();
         ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
-        double IR = m_colorSensor.getIR();
 
         /**
          * Open Smart Dashboard or Shuffleboard to see the color detected by the 
          * sensor.
          */
-        SmartDashboard.putNumber("Red", detectedColor.red);
-        SmartDashboard.putNumber("Green", detectedColor.green);
-        SmartDashboard.putNumber("Blue", detectedColor.blue);
-        SmartDashboard.putBoolean("Note Detected", noteDetected);
+        //SmartDashboard.putBoolean("Note Detected", noteDetected);
         if(match.color == kOrangeTarget)
         {
             noteDetected = true;

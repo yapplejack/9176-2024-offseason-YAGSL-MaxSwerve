@@ -11,7 +11,11 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.robot.commands.manipCommands.findColor;
+import frc.robot.commands.manipCommands.stowArm;
 import swervelib.math.Matter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -33,7 +37,7 @@ public final class Constants
   public static final class AutonConstants
   {
 
-    public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(7.0, 0, 0.5);
     public static final PIDConstants ANGLE_PID       = new PIDConstants(0.4, 0, 0.01);
   }
 
@@ -136,17 +140,18 @@ public final class Constants
     public static final double ARM_OUTPUT_POWER = 0.60;
     public static final double kOffset = 0;
     public static final double kMinHeightAbs = 0 + kOffset;
-    public static final double kMaxHeightAbs = .25 + kOffset;
+    public static final double kMaxHeightAbs = 0.264 + kOffset;
 
     public static final double STOWED = (10.0/360.0f) + kOffset; // 0 degrees ~ 0/360 - 0
     public static final double INTAKE = 0.04 + kOffset; // 17 degrees ~ 17/360 - 0.0472
     public static final double SOURCE = .125 + kOffset; // 45 degrees ~ 90/360 - 0.125
     public static final double SUBSHOT = (53.0f/360.0f) + kOffset; // 60 degrees ~ 60/360 - 0.166
-    public static final double PODSHOT = (36.0f/360.0f) + kOffset; // 33TODO: revert back to 33.0f
+    public static final double PODSHOT = (35.0f/360.0f) + kOffset; // 33TODO: revert back to 33.0f
     public static final double LONGSHOT = (26.25f/360.0f) + kOffset;
     public static final double PASS = (50.0f/360.0f) + kOffset;
-    public static final double AMP = .25 + kOffset; // 90 degrees ~ 90/360 - 0.25
+    public static final double AMP = 0.26388888888888888888888888888889 + kOffset; // 90 degrees ~ 90/360 - 0.25
     public static final double POOP = (7.0f/360.0f) + kOffset;
+    public static final double AUTOPODSHOT = 36.5f/360.0f + kOffset;
 
     public static final double kArmMinOutput = -.6;
     public static final double kArmMaxOutput = .6;
@@ -170,6 +175,25 @@ public final class Constants
 
     public static final double maxAcclerationRpmPerSec = 9000.0;
     public static final double prepareShootMultiplier = .75;
+  }
+
+  public static final class VisionConstants {
+    public static final List<Double> speakerTargets = new ArrayList<Double>() {
+      {
+          add(4.0);
+          add(7.0);
+          add(12.0);
+      }
+    };
+
+    public static final List<Double> passingTargets = new ArrayList<Double>() {
+      {
+        add(13.0);
+        add(14.0);
+        add(12.0);
+      }
+    };
+
   }
 
   public static final class OIConstants {

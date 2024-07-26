@@ -34,7 +34,7 @@ public class PodShotB extends Command {
     @Override
     public void initialize() {
       m_startTime = Timer.getFPGATimestamp();
-      m_arm.raiseArmAbs(armPositions.PODSHOT);
+      m_arm.raiseArmAbs(armPositions.AUTOPODSHOT);
       m_shooter.runShooter(1);
         shooting = false;
         noteExitedIndexer = false;
@@ -48,7 +48,7 @@ public class PodShotB extends Command {
 
     @Override
     public void execute(){
-        m_shooter.runShooter(1);
+        m_shooter.spinShootNote(.4,.7);
         if(getTime() >= 1.0f && shooting == false)
         {
             m_indexer.RunIndexer(1);

@@ -64,19 +64,6 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(File directory)
   {
-    // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
-    //  In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
-    //  The encoder resolution per motor revolution is 1 per motor revolution.
-    //double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(46.42);
-    // Motor conversion factor is (PI * WHEEL DIAMETER IN METERS) / (GEAR RATIO * ENCODER RESOLUTION).
-    //  In this case the wheel diameter is 4 inches, which must be converted to meters to get meters/second.
-    //  The gear ratio is 6.75 motor revolutions per wheel rotation.
-    //  The encoder resolution per motor revolution is 1 per motor revolution.
-    //double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(3), 4.71);
-    System.out.println("\"conversionFactor\": {");
-    //System.out.println("\t\"angle\": " + angleConversionFactor + ",");
-    //System.out.println("\t\"drive\": " + driveConversionFactor);
-    System.out.println("}");
 
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -89,7 +76,7 @@ public class SwerveSubsystem extends SubsystemBase
     {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
+    swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     setupPathPlanner();
   }
@@ -106,9 +93,38 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   /**
-   * Setup AutoBuilder for PathPlanner.
-   */
-  
+ * Setup AutoBuilder for PathPlanner.
+ */
+
+  public void setupPathPlanner()
+  {
+    AutoBuilder.configureHolonomic(
+        this::getPose, // Robot pose supplier
+        this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                                         AutonConstants.TRANSLATION_PID,
+                                         // Translation PID constants
+                                         AutonConstants.ANGLE_PID,
+                                         // Rotation PID constants
+                                         4.8,
+                                         // Max module speed, in m/s
+                                         swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
+                                         // Drive base radius in meters. Distance from robot center to furthest module.
+                                         new ReplanningConfig()
+                                         // Default path replanning config. See the API for the options here
+        ),
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+          var alliance = DriverStation.getAlliance();
+          return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+        },
+        this // Reference to this subsystem to set requirements
+    );
+  }  
 
   /**
    * Get the path follower with events.
@@ -129,12 +145,11 @@ public class SwerveSubsystem extends SubsystemBase
    * @param pose Target {@link Pose2d} to go to.
    * @return PathFinding command
    */
-  /* 
   public Command driveToPose(Pose2d pose)
   {
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumVelocity(), 4.0,
+        swerveDrive.getMaximumVelocity(), 4.8,
         swerveDrive.getMaximumAngularVelocity(), Units.degreesToRadians(720));
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
@@ -145,7 +160,6 @@ public class SwerveSubsystem extends SubsystemBase
         0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
                                      );
   }
-  */
 
   /**
    * Command to drive the robot using translative values and heading as a setpoint.
@@ -240,11 +254,28 @@ public class SwerveSubsystem extends SubsystemBase
 
   public void aimAtSpeaker(Double translationY, Double limelightAim, Double limelightRange)
   {
-          drive(ChassisSpeeds.fromFieldRelativeSpeeds(limelightRange,
+          /*drive(ChassisSpeeds.fromRobotRelativeSpeeds(limelightRange,
                                                       translationY,
                                                       limelightAim,
-                                                      getHeading())
-               );
+                                                      getHeading())*/
+            swerveDrive.drive(new Translation2d(limelightRange * swerveDrive.getMaximumVelocity(),
+                                          translationY * swerveDrive.getMaximumVelocity()),
+                        limelightAim * swerveDrive.getMaximumAngularVelocity(),
+                        false,
+                        false);
+  }
+
+  public void aimAtSpeaker(double translationY, double[] limelightValues)
+  {
+          /*drive(ChassisSpeeds.fromRobotRelativeSpeeds(limelightRange,
+                                                      translationY,
+                                                      limelightAim,
+                                                      getHeading())*/
+            swerveDrive.drive(new Translation2d(limelightValues[1] * swerveDrive.getMaximumVelocity(),
+                                          translationY * swerveDrive.getMaximumVelocity()),
+                        limelightValues[0] * swerveDrive.getMaximumAngularVelocity(),
+                        false,
+                        false);
   }
 
   /**
@@ -567,35 +598,5 @@ public class SwerveSubsystem extends SubsystemBase
   public double getMaximumAngularVelocity()
   {
     return swerveDrive.getMaximumAngularVelocity();
-  }
-
-  public void setupPathPlanner()
-  {
-    AutoBuilder.configureHolonomic(
-        this::getPose, // Robot pose supplier
-        this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-        this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                                         AutonConstants.TRANSLATION_PID,
-                                         // Translation PID constants
-                                         AutonConstants.ANGLE_PID,
-                                         // Rotation PID constants
-                                         4.8,
-                                         // Max module speed, in m/s
-                                         swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
-                                         // Drive base radius in meters. Distance from robot center to furthest module.
-                                         new ReplanningConfig()
-                                         // Default path replanning config. See the API for the options here
-        ),
-        () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-          var alliance = DriverStation.getAlliance();
-          return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-        },
-        this // Reference to this subsystem to set requirements
-                                  );
   }
 }

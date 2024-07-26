@@ -1,6 +1,7 @@
 package frc.robot.commands.manipCommands;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -32,15 +33,25 @@ public class intakeFromFloor extends Command {
         m_intake.runIntake(1);
         m_feeder.runFeeder(.8);
         m_indexer.RunIndexer(.15);
+        if(m_intake.isJamed())
+        {
+            SmartDashboard.putBoolean("Intake/Jammed", true);
+        }
+        else
+        {
+            SmartDashboard.putBoolean("Intake/Jammed", false);
+        }
     }
 
     @Override
     public boolean isFinished() {
-        if(m_indexer.DetectColor())
+        SmartDashboard.putBoolean("Intake/Jammed", false);
+        if(m_indexer.noteDetected)
         {
-            return true; 
+            return true;
         }
         return false;
+
     }
 
     @Override

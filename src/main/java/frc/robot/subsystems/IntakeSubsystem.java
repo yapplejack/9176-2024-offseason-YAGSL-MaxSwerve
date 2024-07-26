@@ -19,4 +19,13 @@ public class IntakeSubsystem extends SubsystemBase {
     public void runIntake(double speed) {
         m_intake.set(speed);
     }
+
+    public boolean isJamed()
+    {
+        if(Math.abs(m_intake.getVelocity().getValueAsDouble()) < 40 && Math.abs(m_intake.get()) > .01)
+        {
+            return true;
+        }
+        return false;
+    }
 }

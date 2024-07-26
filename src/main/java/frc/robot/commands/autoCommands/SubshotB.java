@@ -46,7 +46,7 @@ public class SubshotB extends Command {
 
     @Override
     public void execute(){
-         m_shooter.runShooter(1);
+         m_shooter.spinShootNote(.4, .7);
         if(getTime() >= 1.0f && shooting == false)
         {
             m_indexer.RunIndexer(1);
