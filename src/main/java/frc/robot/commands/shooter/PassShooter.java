@@ -14,7 +14,7 @@ public class PassShooter extends Command {
 
     @Override
     public void execute() {
-        m_shooter.spinShootNote(.5,.35); //.9, .8 
+        m_shooter.spinShootNote(.5,.35); //.5, .2
     }
 
     @Override

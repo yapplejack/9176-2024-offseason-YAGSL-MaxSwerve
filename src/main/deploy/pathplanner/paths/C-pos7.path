@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.094434492906992,
-        "y": 4.1338974839469875
+        "x": 0.8678567784485994,
+        "y": 4.455472842569617
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.215656687845444,
-        "y": 0.9164772723844736
+        "x": 1.9890789733870524,
+        "y": 1.2380526310071032
       },
       "isLocked": false,
       "linkedName": "startC"
     },
     {
       "anchor": {
-        "x": 8.3053390038404,
-        "y": 2.4440782784699477
+        "x": 8.52752793824676,
+        "y": 2.619490595106547
       },
       "prevControl": {
-        "x": 7.439971575099845,
-        "y": 1.0173914364922754
+        "x": 7.662160509506204,
+        "y": 1.1928037531288747
       },
       "nextControl": null,
       "isLocked": false,
@@ -43,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Gay Paths",
+  "folder": null,
   "previewStartingState": {
     "rotation": 120.17352002964432,
     "velocity": 0

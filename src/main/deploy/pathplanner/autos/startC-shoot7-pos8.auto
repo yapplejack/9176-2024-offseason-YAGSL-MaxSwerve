@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7726924717507405,
-      "y": 4.445889746886382
+      "x": 0.8678567784485995,
+      "y": 4.443778688127177
     },
-    "rotation": 117.25532837494313
+    "rotation": 120.96375653207355
   },
   "command": {
     "type": "sequential",
@@ -28,22 +28,15 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ArmToPositionIntake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake"
-                      }
-                    }
-                  ]
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmToPositionIntake"
                 }
               }
             ]
@@ -52,55 +45,35 @@
         {
           "type": "path",
           "data": {
-            "pathName": "pos7-posR-Aaim"
+            "pathName": "Pos7-StartC"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SubShotB"
           }
         },
         {
           "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Aim"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "PodShotB"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "posR-pos8-Aaim"
+                  "pathName": "C-pos8"
                 }
               },
               {
-                "type": "parallel",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "ArmToPositionIntake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake"
-                      }
-                    }
-                  ]
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmToPositionIntake"
                 }
               }
             ]
@@ -109,31 +82,18 @@
         {
           "type": "path",
           "data": {
-            "pathName": "pos8-posR-Aaim"
+            "pathName": "pos8-C"
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Aim"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "PodShotB"
-                }
-              }
-            ]
+            "name": "SubShotB"
           }
         }
       ]
     }
   },
-  "folder": "Aaim Autos",
+  "folder": null,
   "choreoAuto": false
 }

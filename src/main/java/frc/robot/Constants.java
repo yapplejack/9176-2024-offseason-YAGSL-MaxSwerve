@@ -182,7 +182,6 @@ public final class Constants
       {
           add(4.0);
           add(7.0);
-          add(12.0);
       }
     };
 
@@ -190,7 +189,6 @@ public final class Constants
       {
         add(13.0);
         add(14.0);
-        add(12.0);
       }
     };
 

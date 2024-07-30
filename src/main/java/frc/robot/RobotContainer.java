@@ -32,6 +32,7 @@ import frc.robot.commands.feeder.ReverseFeeder;
 import frc.robot.commands.feeder.RunFeeder;
 import frc.robot.commands.indexer.RunIndexerShooter;
 import frc.robot.commands.intake.RunIntakeUnjam;
+import frc.robot.commands.manipCommands.GAYTECHNOLOGY;
 import frc.robot.commands.manipCommands.intakeFromFloor;
 import frc.robot.commands.manipCommands.intakeFromFloorAmp;
 import frc.robot.commands.manipCommands.intakeFromSource;
@@ -226,7 +227,9 @@ public class RobotContainer
     //m_manipController.button(7).whileTrue(new RunClimbRightDown(m_climb));
     m_manipController.button(7).whileTrue(new RunClimb(m_climb));
 
-    m_manipController.button(8).whileTrue(new RunDescend(m_climb));
+    //m_manipController.button(8).whileTrue(new RunDescend(m_climb));
+
+    m_manipController.button(8).whileTrue(new ParallelCommandGroup(new GAYTECHNOLOGY(m_shooter, m_feeder, m_indexer, m_backpack), new ArmToPosition(m_arm, armPositions.AMP)));
 
     //m_manipController.button(8).whileTrue(new RunClimbRightUp(m_climb));
 
