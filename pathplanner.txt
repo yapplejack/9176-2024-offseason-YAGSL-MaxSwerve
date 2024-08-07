@@ -1,4 +1,4 @@
-MaxSwerve starter code version: https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez
+MaxSwerve starter code version: [https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez](https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez)
 YAGSL code: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve
 
 You will use the GUI for creating your paths, make sure to setup your settings first: https://pathplanner.dev/gui-settings.html
