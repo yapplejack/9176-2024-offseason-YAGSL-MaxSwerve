@@ -1,9 +1,10 @@
-MaxSwerve starter code version: [https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez](https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez)
-YAGSL code: [https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve](https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve)
+MaxSwerve starter [code version](https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez)
 
-You will use the GUI for creating your paths, make sure to setup your settings first: [https://pathplanner.dev/gui-settings.html](https://pathplanner.dev/gui-settings.html)
+[YAGSL code](https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve)
 
-Our settings, we found a lot of error with higher angular velocities: [https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/.pathplanner/settings.json#L1](https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/.pathplanner/settings.json#L1)
+You will use the GUI for creating your paths, make sure to setup your [settings first](https://pathplanner.dev/gui-settings.html)
+
+Our settings, we found a lot of error with higher angular velocities: [https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/.pathplanner/settings.json#L1](https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/.pathplanner/settings.json)
 
 Autos are comprised of different paths, for instance our center 4 note auto is comprised of 3 paths. When creating multiple paths make sure to link waypoints: [https://pathplanner.dev/gui-editing-paths-and-autos.html#waypoints-tree](https://pathplanner.dev/gui-editing-paths-and-autos.html#waypoints-tree)
 
