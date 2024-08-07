@@ -1,0 +1,42 @@
+MaxSwerve starter code version: https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez
+YAGSL code: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve
+
+You will use the GUI for creating your paths, make sure to setup your settings first: https://pathplanner.dev/gui-settings.html
+
+Our settings, we found a lot of error with higher angular velocities: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/.pathplanner/settings.json#L1
+
+Autos are comprised of different paths, for instance our center 4 note auto is comprised of 3 paths. When creating multiple paths make sure to link waypoints: https://pathplanner.dev/gui-editing-paths-and-autos.html#waypoints-tree
+
+Apologies for the goofy naming but this is the 4 note auto we ran at rainbow rumble:  https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/main/src/main/deploy/pathplanner/autos/startB-shoot2-1-3-gay.auto
+
+The auto has the different paths as well as named commands which must be fed to pathplanner in the robot container like so: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/src/main/java/frc/robot/RobotContainer.java#L101C4-L106C94
+
+I would recommend downloading the code and viewing our autos in the pathplanner gui. Our folder system got messed up when switching to YAGSL but it should be a decent starting point.
+
+When implementing pathplanner in your code you will need the following:
+
+1) The vendor library: https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json
+
+2) getPose, resetOdometry, getRobotVelocity and setChassisSpeeds methods in your drive subsystem which get fed into AutoBuild.congfigureHolonomic(...): https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/src/main/java/frc/robot/subsystems/swervedrive/SwerveSubsystem.java#L99C3-L127C6
+
+3) a sendable chooser which will use the AutoBuilder which is put on the dashboard: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/src/main/java/frc/robot/RobotContainer.java#L111
+
+4) a method in robot container to get the autonomous command: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/src/main/java/frc/robot/RobotContainer.java#L159C1-L161C4
+
+5) the autonomous command in robot.java: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/5c52d477ff4efa808144b8ea7b6f00a4fcab2e46/src/main/java/frc/robot/Robot.java#L108
+
+We are significantly happier with the auto performance in YAGSL however we did lift our swerve 1/8" as we might have been dragging our intake slightly due to the wheels sinking into the carpet more than expected.
+
+You can use our Maxswerve values but I would personally start from scratch (here they are: https://github.com/steelsturgeons9176/2024Dorsal/blob/1d010c23fb750f773db573a3ceeac12f26159af3/src/main/java/frc/robot/subsystems/DriveSubsystem.java#L113C5-L138C7)
+
+We found our configuration by doing the following: 
+
+1) We started with the robot against the speaker and surrounded it with tape to ensure it would start in roughly the same spot
+
+2) The robot was then moved across a straight path backwards to the middle note position and we configured the PID until we felt the robot had traveled the proper distance, this spot was then taped
+
+3) The robot was then moved to one of the side note positions, we again tried to mark the spot, then we spent the majority of the translation pid tuning on returing it to the middle note spot
+
+4) We then spin the robot to configure the rotational pid and verify that taking a different tradjectory resulted in the same linked position for the middle note
+
+We found that boosting the P high, adding a bit of D and then backing down the P worked pretty well for us.
