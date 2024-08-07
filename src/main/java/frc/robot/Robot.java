@@ -145,7 +145,7 @@ public class Robot extends TimedRobot
   public void teleopPeriodic()
   {
         m_field.setRobotPose(m_robotContainer.drivebase.getPose());
-        //SmartDashboard.putData("2DPose", m_field);
+        SmartDashboard.putData("2DPose", m_field);
   }
 
   @Override

@@ -40,6 +40,7 @@ import frc.robot.commands.manipCommands.transferToAmpback;
 import frc.robot.commands.manipCommands.transferToShooter;
 import frc.robot.commands.shooter.PassShooter;
 import frc.robot.commands.shooter.RunShooter;
+import frc.robot.commands.swervedrive.drivebase.AbsoluteDrive;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BackpackSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
@@ -119,6 +120,13 @@ public class RobotContainer
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the desired angle NOT angular rotation
+
+    AbsoluteDrive closedAbsoluteDriveAdv = new AbsoluteDrive(drivebase,
+                                                                   () -> m_driverController.getRawAxis(1), 
+    () -> m_driverController.getRawAxis(0), 
+    () -> -m_driverController.getRightX(),
+    () -> -m_driverController.getRightY());
+
     Command driveFieldOrientedVelo = drivebase.driveCommand(() -> MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND), 
     () -> MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), 
     () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OperatorConstants.RIGHT_X_DEADBAND));
@@ -150,7 +158,6 @@ public class RobotContainer
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
-    //return new PathPlannerAuto("startB-shoot2");
   }
 
   /**
@@ -165,8 +172,10 @@ public class RobotContainer
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
     m_driverController.button(1).onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    //driverXbox.button(2).onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-    //driverXbox.button(3).onTrue((Commands.runOnce(drivebase::lock)));
+    m_driverController.button(2).whileTrue( 
+      drivebase.driveCommand(() -> m_driverController.getRawAxis(1), 
+    () -> 0.0d, 
+    () -> -m_driverController.getRightX()));
 
     //m_driverController.button(2).whileTrue(new RunCommand(() -> drivebase.driveCommand(
     //  () -> MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
@@ -185,7 +194,7 @@ public class RobotContainer
       MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), VisionConstants.passingTargets), 
       new ArmToPosition(m_arm, armPositions.PASS), new PassShooter(m_shooter) ));*/
 
-    m_driverController.button(3).whileTrue(new ParallelCommandGroup( new RunCommand(() -> 
+     m_driverController.button(3).whileTrue(new ParallelCommandGroup( new RunCommand(() -> 
       drivebase.aimAtSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
        m_vision.limelight_range_and_aim_proportional(VisionConstants.speakerTargets)), drivebase), 
       new ArmToPosition(m_arm, armPositions.PASS), new PassShooter(m_shooter) ));
