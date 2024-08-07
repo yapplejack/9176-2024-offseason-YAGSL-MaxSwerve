@@ -1,3 +1,7 @@
+Forgot that txt sucks on github, please use the markdown version here for a better experience (at the top level of this repo): https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve/blob/main/pathplanner.md
+
+
+
 MaxSwerve starter code version: https://github.com/steelsturgeons9176/2024Dorsal/tree/armTrapez
 YAGSL code: https://github.com/yapplejack/9176-2024-offseason-YAGSL-MaxSwerve
 
