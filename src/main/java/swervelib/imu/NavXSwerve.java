@@ -149,6 +149,17 @@ public class NavXSwerve extends SwerveIMU
     return invertedIMU ? gyro.getRotation3d().unaryMinus() : gyro.getRotation3d();
   }
 
+    /**
+   * Fetch the {@link Rotation3d} from the IMU without any zeroing. Robot relative.
+   *
+   * @return {@link Rotation3d} from the IMU.
+   */
+  @Override
+  public Double getYawVelocity()
+  {
+    return invertedIMU ? (double) -gyro.getVelocityZ() : (double) gyro.getVelocityZ() ;
+  }
+
   /**
    * Fetch the {@link Rotation3d} from the IMU. Robot relative.
    *

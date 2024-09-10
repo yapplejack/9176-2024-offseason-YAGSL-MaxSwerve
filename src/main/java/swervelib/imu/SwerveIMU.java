@@ -48,6 +48,14 @@ public abstract class SwerveIMU
    */
   public abstract Rotation3d getRotation3d();
 
+
+    /**
+   * Fetch the Yaw Velocity from the IMU. Robot relative.
+   *
+   * @return Yaw Velocity Double from the IMU.
+   */
+  public abstract Double getYawVelocity();
+
   /**
    * Fetch the acceleration [x, y, z] from the IMU in meters per second squared. If acceleration isn't supported returns
    * empty.

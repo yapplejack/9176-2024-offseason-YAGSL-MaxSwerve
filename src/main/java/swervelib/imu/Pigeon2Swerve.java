@@ -119,6 +119,17 @@ public class Pigeon2Swerve extends SwerveIMU
     return getRawRotation3d().minus(offset);
   }
 
+        /**
+   * Fetch the {@link Rotation3d} from the IMU without any zeroing. Robot relative.
+   *
+   * @return {@link Rotation3d} from the IMU.
+   */
+  @Override
+  public Double getYawVelocity()
+  {
+    return 0.0;
+  }
+
   /**
    * Fetch the acceleration [x, y, z] from the IMU in meters per second squared. If acceleration isn't supported returns
    * empty.

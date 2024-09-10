@@ -115,6 +115,17 @@ public class PigeonSwerve extends SwerveIMU
     return Optional.of(new Translation3d(initial[0], initial[1], initial[2]).times(9.81 / 16384.0));
   }
 
+      /**
+   * Fetch the {@link Rotation3d} from the IMU without any zeroing. Robot relative.
+   *
+   * @return {@link Rotation3d} from the IMU.
+   */
+  @Override
+  public Double getYawVelocity()
+  {
+    return 0.0;
+  }
+
   /**
    * Get the instantiated IMU object.
    *
