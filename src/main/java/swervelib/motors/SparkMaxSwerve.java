@@ -218,7 +218,9 @@ public class SparkMaxSwerve extends SwerveMotor
     {
       configureSparkMax(() -> encoder.setPositionConversionFactor(positionConversionFactor));
       configureSparkMax(() -> encoder.setVelocityConversionFactor(positionConversionFactor / 60));
-      configureSparkMax(() -> encoder.setMeasurementPeriod(10));
+      //configureSparkMax(() -> encoder.setMeasurementPeriod(32));
+      //configureSparkMax(() -> encoder.setAverageDepth(8));
+      configureSparkMax(() -> encoder.setMeasurementPeriod(8));
       configureSparkMax(() -> encoder.setAverageDepth(2));
 
       // Taken from

@@ -127,9 +127,9 @@ public class RobotContainer
     () -> -m_driverController.getRightX(),
     () -> -m_driverController.getRightY());
 
-    Command driveFieldOrientedVelo = drivebase.driveCommand(() -> MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND), 
+    Command driveFieldOrientedVelo = drivebase.driveCommandRotationMultipler(() -> MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND), 
     () -> MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), 
-    () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OperatorConstants.RIGHT_X_DEADBAND));
+    () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OperatorConstants.RIGHT_X_DEADBAND), 1.0);
 
     Command driveFieldOrintedAngle = drivebase.driveCommand(() -> m_driverController.getRawAxis(1), 
     () -> m_driverController.getRawAxis(0), 
