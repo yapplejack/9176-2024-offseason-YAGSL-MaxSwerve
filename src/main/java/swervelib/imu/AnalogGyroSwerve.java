@@ -115,6 +115,17 @@ public class AnalogGyroSwerve extends SwerveIMU
     return Optional.empty();
   }
 
+        /**
+   * Fetch the {@link Rotation3d} from the IMU without any zeroing. Robot relative.
+   *
+   * @return {@link Rotation3d} from the IMU.
+   */
+  @Override
+  public Double getYawVelocity()
+  {
+    return 0.0;
+  }
+
   /**
    * Get the instantiated IMU object.
    *

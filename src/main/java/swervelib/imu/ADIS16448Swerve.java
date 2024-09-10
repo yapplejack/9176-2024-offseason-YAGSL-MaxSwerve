@@ -35,6 +35,17 @@ public class ADIS16448Swerve extends SwerveIMU
     SmartDashboard.putData(imu);
   }
 
+        /**
+   * Fetch the {@link Rotation3d} from the IMU without any zeroing. Robot relative.
+   *
+   * @return {@link Rotation3d} from the IMU.
+   */
+  @Override
+  public Double getYawVelocity()
+  {
+    return 0.0;
+  }
+
   /**
    * Reset IMU to factory default.
    */
