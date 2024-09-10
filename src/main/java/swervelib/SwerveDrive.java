@@ -526,6 +526,11 @@ public class SwerveDrive
   {
     var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
     if(angularVelocity.getRadians() != 0.0){
+      velocity = ChassisSpeeds.fromRobotRelativeSpeeds(
+                    velocity.vxMetersPerSecond,
+                    velocity.vyMetersPerSecond,
+                    velocity.omegaRadiansPerSecond,
+                    getOdometryHeading());
       velocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, getOdometryHeading().plus(angularVelocity));
     }
 
