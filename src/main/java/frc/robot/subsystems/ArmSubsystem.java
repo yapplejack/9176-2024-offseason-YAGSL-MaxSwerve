@@ -12,7 +12,7 @@ import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
+//import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.Timer;
@@ -149,7 +149,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         m_speed = m_armRight.getEncoder().getVelocity();
         SmartDashboard.putNumber("setpointState", setpointState.position);
-        if(profile.isFinished(m_timer.get() + .06))
+        if(profile.isFinished(m_timer.get() + .05))
         {
             setpointState = new TrapezoidProfile.State(currentGoal, 0);
             updateMotionProfile();
