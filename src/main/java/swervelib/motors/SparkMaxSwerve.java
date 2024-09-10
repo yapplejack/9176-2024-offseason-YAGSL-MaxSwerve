@@ -220,14 +220,15 @@ public class SparkMaxSwerve extends SwerveMotor
       configureSparkMax(() -> encoder.setVelocityConversionFactor(positionConversionFactor / 60));
       //configureSparkMax(() -> encoder.setMeasurementPeriod(32));
       //configureSparkMax(() -> encoder.setAverageDepth(8));
-      configureSparkMax(() -> encoder.setMeasurementPeriod(8));
+      configureSparkMax(() -> encoder.setMeasurementPeriod(10));
       configureSparkMax(() -> encoder.setAverageDepth(2));
 
       // Taken from
       // https://github.com/frc3512/SwerveBot-2022/blob/9d31afd05df6c630d5acb4ec2cf5d734c9093bf8/src/main/java/frc/lib/util/CANSparkMaxUtil.java#L67
-      configureCANStatusFrames(10, 20, 20, 500, 500, 200, 200);
+      configureCANStatusFrames(100, 10, 10, 65535, 65535, 65535, 65535);
     } else
     {
+      configureCANStatusFrames(100, 20, 50, 65535, 20, 8, 50);
       configureSparkMax(() -> {
         if (absoluteEncoder.getAbsoluteEncoder() instanceof AbsoluteEncoder)
         {

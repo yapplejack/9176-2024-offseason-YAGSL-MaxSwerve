@@ -416,7 +416,7 @@ public class SwerveDrive
    */
   public void drive(ChassisSpeeds velocity)
   {
-    drive(velocity, false, new Translation2d());
+    drive(velocity, false, new Translation2d(), 1);
   }
 
   /**
@@ -428,7 +428,7 @@ public class SwerveDrive
    */
   public void drive(ChassisSpeeds velocity, Translation2d centerOfRotationMeters)
   {
-    drive(velocity, false, centerOfRotationMeters);
+    drive(velocity, false, centerOfRotationMeters, 1);
   }
 
   /**
@@ -459,7 +459,7 @@ public class SwerveDrive
             translation.getX(), translation.getY(), rotation, getOdometryHeading())
         : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
 
-    drive(velocity, isOpenLoop, centerOfRotationMeters);
+    drive(velocity, isOpenLoop, centerOfRotationMeters, 1);
   }
 
   /**
@@ -488,7 +488,7 @@ public class SwerveDrive
             translation.getX(), translation.getY(), rotation, getOdometryHeading())
         : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
 
-    drive(velocity, isOpenLoop, new Translation2d());
+    drive(velocity, isOpenLoop, new Translation2d(), 1);
   }
 
     public void drive(
@@ -537,7 +537,7 @@ public class SwerveDrive
    * @param isOpenLoop             Whether to use closed-loop velocity control. Set to true to disable closed-loop.
    * @param centerOfRotationMeters The center of rotation in meters, 0 is the center of the robot.
    */
-  public void drive(ChassisSpeeds velocity, boolean isOpenLoop, Translation2d centerOfRotationMeters)
+  public void drive(ChassisSpeeds velocity, boolean isOpenLoop, Translation2d centerOfRotationMeters, double rotMulti)
   {
     var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
     if(angularVelocity.getRadians() != 0.0){
@@ -554,8 +554,8 @@ public class SwerveDrive
     double timeStamp = HALUtil.getFPGATime() / 1.0e6;
     if (chassisVelocityCorrection && (lastTimeStamp > 0.0))
     {
-      //velocity = ChassisSpeeds.discretize(velocity, discretizationdtSeconds);
-      velocity = discretize(velocity, discretizationdtSeconds);
+      var dt = timeStamp - lastTimeStamp;
+      velocity = discretize(velocity, dt, rotMulti);
     }
     lastTimeStamp = timeStamp;
 
@@ -703,10 +703,10 @@ public class SwerveDrive
     SwerveDriveTelemetry.desiredChassisSpeeds[0] = chassisSpeeds.vxMetersPerSecond;
     SwerveDriveTelemetry.desiredChassisSpeeds[2] = Math.toDegrees(chassisSpeeds.omegaRadiansPerSecond);
 
-    var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
-    if(angularVelocity.getRadians() != 0.0){
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getOdometryHeading().plus(angularVelocity));
-    }
+    //var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
+    //if(angularVelocity.getRadians() != 0.0){
+    //  chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getOdometryHeading().plus(angularVelocity));
+    //}
 
     // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
     // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
@@ -715,7 +715,7 @@ public class SwerveDrive
     {
       //velocity = ChassisSpeeds.discretize(velocity, discretizationdtSeconds);
       var dt = timeStamp - lastTimeStamp;
-      chassisSpeeds = discretize(chassisSpeeds, dt);
+      chassisSpeeds = discretize(chassisSpeeds, dt, 1);
     }
     lastTimeStamp = timeStamp;
 
