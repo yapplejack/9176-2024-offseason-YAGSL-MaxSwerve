@@ -206,6 +206,7 @@ public class SwerveDrive
 
     zeroGyro();
     setMaximumSpeed(maxSpeedMPS);
+    //YAGSLDIFF enaable to test different desaturation
     //setMaximumSpeeds(maxSpeedMPS, 4.8, 4);
 
     // Initialize Telemetry
@@ -339,6 +340,7 @@ public class SwerveDrive
    *
    * @return {@link Rotation2d} of the robot heading.
    */
+  //YAGSLDIFF we can choose to use odometry over pose estimator
   public Rotation2d getOdometryHeading()
   {
     if(UsingPoseEstimator == true)
@@ -504,7 +506,7 @@ public class SwerveDrive
 
     drive(velocity, isOpenLoop, new Translation2d(), rotationMultipler);
   }
-
+  //YAGSLDIFF we can add a rotational multipler to discretize
   public static ChassisSpeeds discretize(
       double vxMetersPerSecond,
       double vyMetersPerSecond,
@@ -539,6 +541,7 @@ public class SwerveDrive
    */
   public void drive(ChassisSpeeds velocity, boolean isOpenLoop, Translation2d centerOfRotationMeters, double rotMulti)
   {
+    //YAGSLDIFF
     //var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
     /*if(angularVelocity.getRadians() != 0.0){
       velocity = ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -551,6 +554,7 @@ public class SwerveDrive
 
     // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
     // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
+    //YAGSLDIFF we can use a timeStamp over a constant .02
     double timeStamp = HALUtil.getFPGATime() / 1.0e6;
     if (chassisVelocityCorrection && (lastTimeStamp > 0.0))
     {
@@ -590,7 +594,7 @@ public class SwerveDrive
 
     // Calculate required module states via kinematics
     SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(velocity, centerOfRotationMeters);
-
+    //YAGSLDIFF we can use the velocity as an input for setting the swerve modules
     setRawModuleStates(swerveModuleStates, velocity, isOpenLoop);
   }
 
@@ -643,6 +647,8 @@ public class SwerveDrive
    * @param desiredStates A list of SwerveModuleStates to send to the modules.
    * @param isOpenLoop    Whether to use closed-loop velocity control. Set to true to disable closed-loop.
    */
+  //YAGSLDIFF added adjustedChassisSpeeds as an input for desaturating with max tranlstaional and rot velocities
+  //Default uses getRobotVelocity()
   private void setRawModuleStates(SwerveModuleState[] desiredStates, ChassisSpeeds adjustedChassisSpeeds, boolean isOpenLoop)
   {
     // Desaturates wheel speeds
@@ -670,6 +676,7 @@ public class SwerveDrive
    * @param desiredStates A list of SwerveModuleStates to send to the modules.
    * @param isOpenLoop    Whether to use closed-loop velocity control. Set to true to disable closed-loop.
    */
+  //YAGSLDIFF need to fix for pathplanner
   public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop)
   {
     //setRawModuleStates(kinematics.toSwerveModuleStates(kinematics.toChassisSpeeds(desiredStates)),
@@ -681,6 +688,7 @@ public class SwerveDrive
    * Set chassis speeds with closed-loop velocity control.
    *
    * @param chassisSpeeds Chassis speeds to set.
+  //YAGSLDIFF previously used for pathplanner
   public void setChassisSpeeds(ChassisSpeeds chassisSpeeds)
   {
     SwerveDriveTelemetry.desiredChassisSpeeds[1] = chassisSpeeds.vyMetersPerSecond;
@@ -742,6 +750,7 @@ public class SwerveDrive
    *
    * @return The robot's pose
    */
+  //YAGSLDIFF we allow the option of using odometry over pose estimator
   public Pose2d getPose()
   {
 
@@ -788,6 +797,7 @@ public class SwerveDrive
    *
    * @param pose The pose to set the odometry to
    */
+  //YAGSLDIFF we allow for use of standard odom over pose estimator
   public void resetOdometry(Pose2d pose)
   {
     odometryLock.lock();
