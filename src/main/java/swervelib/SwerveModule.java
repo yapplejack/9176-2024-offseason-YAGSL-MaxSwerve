@@ -641,7 +641,13 @@ public class SwerveModule
     SmartDashboard.putNumber(rawAngleName, angleMotor.getPosition());
     SmartDashboard.putNumber(rawDriveName, driveMotor.getPosition());
     SmartDashboard.putNumber(rawDriveVelName, driveMotor.getVelocity());
-    SmartDashboard.putNumber(adjAbsoluteAngleName, getAbsolutePosition());
+    if (!SwerveDriveTelemetry.isSimulation)
+    {
+      SmartDashboard.putNumber(adjAbsoluteAngleName, getAbsolutePosition());
+    } else {
+      SmartDashboard.putNumber(adjAbsoluteAngleName, simModule.getPosition().angle.getDegrees());
+    }
+    
     SmartDashboard.putNumber(absoluteEncoderIssueName, getAbsoluteEncoderReadIssue() ? 1 : 0);
   }
 }

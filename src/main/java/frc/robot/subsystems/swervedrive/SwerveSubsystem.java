@@ -19,6 +19,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -50,6 +51,11 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
+  private double prevMeasurement;
+  private double numSameMeasurement;
+  private double numDifferentMeasurement;
+  private double totalMeasurements;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -72,6 +78,10 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     setupPathPlanner();
+    prevMeasurement = 0;
+    numSameMeasurement = 0;
+    numDifferentMeasurement = 0;
+    totalMeasurements = 0;
   }
 
   /**
@@ -321,6 +331,10 @@ public class SwerveSubsystem extends SubsystemBase
   }*/
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX)
   {
+    prevMeasurement = 0;
+    numSameMeasurement = 0;
+    numDifferentMeasurement = 0;
+    totalMeasurements = 0;
     return run(() -> {
       // Make the robot move
       swerveDrive.drive(new Translation2d(
@@ -329,12 +343,32 @@ public class SwerveSubsystem extends SubsystemBase
                         angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
                         true,
                         false);
+    if(prevMeasurement != swerveDrive.getStates()[0].angle.getDegrees())
+      {
+        numDifferentMeasurement += 1;
+      }
+      else
+      {
+        numSameMeasurement += 1;
+      }
+      totalMeasurements += 1;
+      prevMeasurement = swerveDrive.getStates()[0].angle.getDegrees();
+
+      SmartDashboard.putNumber("ModulueTest/Diff measurements", numDifferentMeasurement);
+      SmartDashboard.putNumber("ModulueTest/Same measurements", numSameMeasurement);
+      SmartDashboard.putNumber("ModulueTest/Total Measurements", totalMeasurements);
+      SmartDashboard.putNumber("ModulueTest/Current Reported Measuredment", swerveDrive.getStates()[0].angle.getDegrees());
+      SmartDashboard.putNumber("ModulueTest/Prev Measurement", prevMeasurement);
     });
   }
 
   public Command driveCommandRotationMultipler(DoubleSupplier translationX, DoubleSupplier translationY, 
   DoubleSupplier angularRotationX, Double rotMultipler)
   {
+        prevMeasurement = 0;
+    numSameMeasurement = 0;
+    numDifferentMeasurement = 0;
+    totalMeasurements = 0;
     return run(() -> {
       swerveDrive.drive(new Translation2d(
                             translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
@@ -342,6 +376,22 @@ public class SwerveSubsystem extends SubsystemBase
                         angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
                         true,
                         false, rotMultipler);
+      if(prevMeasurement != swerveDrive.getStates()[0].angle.getDegrees())
+      {
+        numDifferentMeasurement += 1;
+      }
+      else
+      {
+        numSameMeasurement += 1;
+      }
+      totalMeasurements += 1;
+      prevMeasurement = swerveDrive.getStates()[0].angle.getDegrees();
+
+      SmartDashboard.putNumber("ModulueTest/Diff measurements", numDifferentMeasurement);
+      SmartDashboard.putNumber("ModulueTest/Same measurements", numSameMeasurement);
+      SmartDashboard.putNumber("ModulueTest/Total Measurements", totalMeasurements);
+      SmartDashboard.putNumber("ModulueTest/Current Reported Measuredment", swerveDrive.getStates()[0].angle.getDegrees());
+      SmartDashboard.putNumber("ModulueTest/Prev Measurement", prevMeasurement);
     });
   }
 
