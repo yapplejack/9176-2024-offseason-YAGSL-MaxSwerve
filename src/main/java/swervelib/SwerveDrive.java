@@ -147,11 +147,11 @@ public class SwerveDrive
    */
   private       double                   maxSpeedMPS;
 
-  public static final double ANGULAR_VELOCITY_COEFFICIENT = -0.1;
+  public static final double ANGULAR_VELOCITY_COEFFICIENT = -0.05;
 
   protected double lastTimeStamp = Double.NEGATIVE_INFINITY;
 
-  protected boolean UsingPoseEstimator = true;
+  protected boolean UsingPoseEstimator = false;
 
   protected SwerveDriveOdometry odometry;
 
@@ -185,12 +185,12 @@ public class SwerveDrive
     if (SwerveDriveTelemetry.isSimulation)
     {
       simIMU = new SwerveIMUSimulation();
-      imuReadingCache = new Cache<>(simIMU::getGyroRotation3d, 5L);
+      imuReadingCache = new Cache<>(simIMU::getGyroRotation3d, 1L);
     } else
     {
       imu = config.imu;
       imu.factoryDefault();
-      imuReadingCache = new Cache<>(imu::getRotation3d, 5L);
+      imuReadingCache = new Cache<>(imu::getRotation3d, 1L);
     }
 
     this.swerveModules = config.modules;
@@ -542,15 +542,16 @@ public class SwerveDrive
   public void drive(ChassisSpeeds velocity, boolean isOpenLoop, Translation2d centerOfRotationMeters, double rotMulti)
   {
     //YAGSLDIFF
-    //var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
-    /*if(angularVelocity.getRadians() != 0.0){
+    var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
+    if(angularVelocity.getRadians() != 0.0){
       velocity = ChassisSpeeds.fromRobotRelativeSpeeds(
                     velocity.vxMetersPerSecond,
                     velocity.vyMetersPerSecond,
                     velocity.omegaRadiansPerSecond,
                     getOdometryHeading());
       velocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, getOdometryHeading().plus(angularVelocity));
-    }*/
+    }
+    SmartDashboard.putNumber("SwerveAngularVelocity", angularVelocity.getDegrees());
 
     // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
     // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5

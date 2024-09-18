@@ -594,23 +594,13 @@ public class SwerveModule
   {
     if (absoluteEncoder != null && angleOffset == configuration.angleOffset)
     {
-      // If the absolute encoder is attached.
-      if (angleMotor.getMotor() instanceof CANSparkMax)
-      {
-        if (absoluteEncoder.getAbsoluteEncoder() instanceof MotorFeedbackSensor)
-        {
-          angleMotor.setAbsoluteEncoder(absoluteEncoder);
           if (absoluteEncoder.setAbsoluteEncoderOffset(angleOffset))
           {
             angleOffset = 0;
           } else
           {
-            angleMotor.setAbsoluteEncoder(null);
             encoderOffsetWarning.set(true);
           }
-        }
-      }
-
     } else
     {
       noEncoderWarning.set(true);
