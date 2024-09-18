@@ -68,7 +68,10 @@ public class NavXSwerve extends SwerveIMU
       /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
       /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
       /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
+      byte refreshRate = 100;
       gyro = new AHRS(port);
+      //YAGSLDIFF attempt to use a higher refresh rate for the gyro
+      //gyro = new AHRS(port, refreshRate);
       factoryDefault();
       SmartDashboard.putData(gyro);
     } catch (RuntimeException ex)
@@ -157,7 +160,8 @@ public class NavXSwerve extends SwerveIMU
   @Override
   public Double getYawVelocity()
   {
-    return invertedIMU ? (double) -gyro.getVelocityZ() : (double) gyro.getVelocityZ() ;
+    //test getRate
+    return invertedIMU ? (double) -gyro.getRawGyroZ() : (double) gyro.getRawGyroZ() ;
   }
 
   /**
