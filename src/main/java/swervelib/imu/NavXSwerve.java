@@ -3,6 +3,7 @@ package swervelib.imu;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -161,7 +162,7 @@ public class NavXSwerve extends SwerveIMU
   public Double getYawVelocity()
   {
     //test getRate
-    return invertedIMU ? (double) -gyro.getRawGyroZ() : (double) gyro.getRawGyroZ() ;
+    return invertedIMU ? (double) Units.degreesToRadians(-gyro.getRawGyroZ()) : (double) Units.degreesToRadians(gyro.getRawGyroZ()) ;
   }
 
   /**

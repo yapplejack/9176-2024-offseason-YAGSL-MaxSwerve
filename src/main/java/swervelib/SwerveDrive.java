@@ -39,6 +39,7 @@ import javax.swing.plaf.TreeUI;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 
 import swervelib.encoders.CANCoderSwerve;
+import swervelib.imu.IMUVelocity;
 import swervelib.imu.Pigeon2Swerve;
 import swervelib.imu.SwerveIMU;
 import swervelib.math.SwerveMath;
@@ -147,7 +148,7 @@ public class SwerveDrive
    */
   private       double                   maxSpeedMPS;
 
-  public static final double ANGULAR_VELOCITY_COEFFICIENT = -0.05;
+  public static final double ANGULAR_VELOCITY_COEFFICIENT = 0.095; // found good at .075
 
   protected double lastTimeStamp = Double.NEGATIVE_INFINITY;
 
@@ -156,6 +157,8 @@ public class SwerveDrive
   protected SwerveDriveOdometry odometry;
 
   protected Pose2d odometryPose = new Pose2d();
+
+  private IMUVelocity imuVelo;
 
   /**
    * Creates a new swerve drivebase subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
@@ -194,6 +197,8 @@ public class SwerveDrive
     }
 
     this.swerveModules = config.modules;
+
+    imuVelo = new IMUVelocity(imu, 1.0/60.0, 5); //good at 5 taps
 
     odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
     swerveDrivePoseEstimator =
@@ -542,7 +547,7 @@ public class SwerveDrive
   public void drive(ChassisSpeeds velocity, boolean isOpenLoop, Translation2d centerOfRotationMeters, double rotMulti)
   {
     //YAGSLDIFF
-    var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
+    var angularVelocity = new Rotation2d(imuVelo.getVelocity() * 1000000 * ANGULAR_VELOCITY_COEFFICIENT);
     if(angularVelocity.getRadians() != 0.0){
       velocity = ChassisSpeeds.fromRobotRelativeSpeeds(
                     velocity.vxMetersPerSecond,
@@ -551,7 +556,10 @@ public class SwerveDrive
                     getOdometryHeading());
       velocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, getOdometryHeading().plus(angularVelocity));
     }
-    SmartDashboard.putNumber("SwerveAngularVelocity", angularVelocity.getDegrees());
+    //SmartDashboard.putNumber("SwerveAngularVelocity", angularVelocity.getDegrees());
+    SmartDashboard.putNumber("SwerveAngularVelocity", imuVelo.getVelocity() * 1000000);
+
+
 
     // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
     // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
@@ -712,21 +720,47 @@ public class SwerveDrive
     SwerveDriveTelemetry.desiredChassisSpeeds[0] = chassisSpeeds.vxMetersPerSecond;
     SwerveDriveTelemetry.desiredChassisSpeeds[2] = Math.toDegrees(chassisSpeeds.omegaRadiansPerSecond);
 
-    //var angularVelocity = new Rotation2d(imu.getYawVelocity() * ANGULAR_VELOCITY_COEFFICIENT);
-    //if(angularVelocity.getRadians() != 0.0){
-    //  chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getOdometryHeading().plus(angularVelocity));
-    //}
+    var angularVelocity = new Rotation2d(imuVelo.getVelocity() * 1000000 * ANGULAR_VELOCITY_COEFFICIENT);
+    if(angularVelocity.getRadians() != 0.0){
+      chassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+                    chassisSpeeds.vxMetersPerSecond,
+                    chassisSpeeds.vyMetersPerSecond,
+                    chassisSpeeds.omegaRadiansPerSecond,
+                    getOdometryHeading());
+      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getOdometryHeading().plus(angularVelocity));
+    }
+    //SmartDashboard.putNumber("SwerveAngularVelocity", angularVelocity.getDegrees());
+    SmartDashboard.putNumber("SwerveAngularVelocity", imuVelo.getVelocity() * 1000000);
+
+
 
     // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
     // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
+    //YAGSLDIFF we can use a timeStamp over a constant .02
     double timeStamp = HALUtil.getFPGATime() / 1.0e6;
     if (chassisVelocityCorrection && (lastTimeStamp > 0.0))
     {
-      //velocity = ChassisSpeeds.discretize(velocity, discretizationdtSeconds);
       var dt = timeStamp - lastTimeStamp;
       chassisSpeeds = discretize(chassisSpeeds, dt, 1);
     }
     lastTimeStamp = timeStamp;
+
+    // Heading Angular Velocity Deadband, might make a configuration option later.
+    // Originally made by Team 1466 Webb Robotics.
+    // Modified by Team 7525 Pioneers and BoiledBurntBagel of 6036
+    if (headingCorrection)
+    {
+      if (Math.abs(chassisSpeeds.omegaRadiansPerSecond) < HEADING_CORRECTION_DEADBAND
+          && (Math.abs(chassisSpeeds.vxMetersPerSecond) > HEADING_CORRECTION_DEADBAND
+              || Math.abs(chassisSpeeds.vyMetersPerSecond) > HEADING_CORRECTION_DEADBAND))
+      {
+        chassisSpeeds.omegaRadiansPerSecond =
+            swerveController.headingCalculate(getOdometryHeading().getRadians(), lastHeadingRadians);
+      } else
+      {
+        lastHeadingRadians = getOdometryHeading().getRadians();
+      }
+    }
 
     // Display commanded speed for testing
     if (SwerveDriveTelemetry.verbosity == TelemetryVerbosity.INFO)
@@ -742,7 +776,7 @@ public class SwerveDrive
 
     // Calculate required module states via kinematics
     SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(chassisSpeeds, new Translation2d());
-
+    //YAGSLDIFF we can use the velocity as an input for setting the swerve modules
     setRawModuleStates(swerveModuleStates, chassisSpeeds, false);
   }
 

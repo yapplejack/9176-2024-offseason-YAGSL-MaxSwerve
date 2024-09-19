@@ -15,7 +15,7 @@ import edu.wpi.first.math.util.Units;
 
 
 public class IMUVelocity {
-    private final AHRS gyro;
+    private final SwerveIMU gyro;
     private final LinearFilter velocityFilter;
     private final Notifier  notifier;
 
@@ -32,17 +32,7 @@ public class IMUVelocity {
 
     public IMUVelocity(SwerveIMU gyro, double periodSeconds, int averagingTaps)
     {
-        if (gyro.getIMU() == AHRS.class)
-        {
-            this.gyro = AHRS.class.cast(gyro.getIMU());
-        }
-        else
-        {
-            this.gyro = null;
-            DriverStation.reportWarning(
-            "WARNING: The gyro was not a NAVX",
-            false);
-        }
+        this.gyro = gyro;
         velocityFilter = LinearFilter.movingAverage(averagingTaps);
         notifier = new Notifier(this::update);
         notifier.startPeriodic(periodSeconds);
@@ -52,12 +42,11 @@ public class IMUVelocity {
     private void update() 
     {
         //check isFresh
-        boolean isFresh = updateCount < gyro.getUpdateCount();
-        updateCount = gyro.getUpdateCount();
+        //boolean isFresh = updateCount < gyro.getUpdateCount();
+        //updateCount = gyro.getUpdateCount();
         double newTimestamp = RobotController.getFPGATime();
         Rotation2d newPosition = Rotation2d.fromRadians(gyro.getRotation3d().getZ());
 
-        if (isFresh) {
         synchronized (this) {
                 if (!firstCycle) {
                     velocity = velocityFilter.calculate(
@@ -67,7 +56,6 @@ public class IMUVelocity {
                 timestamp = newTimestamp;
                 position = newPosition;
             }
-        }
     }
 
     public synchronized double getVelocity() {

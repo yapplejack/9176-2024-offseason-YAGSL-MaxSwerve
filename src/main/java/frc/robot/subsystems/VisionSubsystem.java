@@ -78,7 +78,7 @@ public class VisionSubsystem extends SubsystemBase {
     // if it is too high, the robot will oscillate around.
     // if it is too low, the robot will never reach its target
     // if the robot never turns in the correct direction, kP should be inverted.
-    double kPAim = .0017; // .015 for field relative command
+    double kPAim = .0014; // .0017 for field relative command
     // tx ranges from (-hfov/2) to (hfov/2) in degrees. If your target is on the rightmost edge of 
     // your limelight 3 feed, tx should return roughly 31 degrees.
     if(!targets.contains(LimelightHelpers.getFiducialID("limelight")))
@@ -104,7 +104,7 @@ public class VisionSubsystem extends SubsystemBase {
     double kPRange = .0225; // .1 for field relative
     velocities[1] = LimelightHelpers.getTY("limelight") * kPRange;
     velocities[1] *= Constants.MAX_SPEED;
-    velocities[1] *= -1.0;
+    velocities[1] *= 1.0;
 
     if(Math.abs(LimelightHelpers.getTX("limelight")) < 1.2 && 
       Math.abs(LimelightHelpers.getTY("limelight")) < 1.0 && 
