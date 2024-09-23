@@ -273,7 +273,27 @@ public class SwerveSubsystem extends SubsystemBase
                         false);
   }
 
-  /**
+  public void alignWithAmp(double controllerInput, double[] limelightValues)
+  {
+    if(limelightValues[2] == 0)
+    {
+      swerveDrive.drive(new Translation2d(limelightValues[1] * swerveDrive.getMaximumVelocity(),
+                                            limelightValues[0] * swerveDrive.getMaximumVelocity()),
+                          controllerInput * swerveDrive.getMaximumAngularVelocity(),
+                          false,
+                          false);
+    }
+    else
+    {
+      swerveDrive.drive(new Translation2d(0 * swerveDrive.getMaximumVelocity(),
+                                            0 * swerveDrive.getMaximumVelocity()),
+                          limelightValues[0] * swerveDrive.getMaximumAngularVelocity(),
+                          false,
+                          false);
+    }
+  }
+
+  /*1*
    * Command to characterize the robot drive motors using SysId
    *
    * @return SysId Drive Command

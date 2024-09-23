@@ -186,9 +186,14 @@ public class RobotContainer
     /*m_driverController.button(4).whileTrue(new aimTele(drivebase, m_vision, 
       MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), VisionConstants.speakerTargets));*/
 
+
+
       m_driverController.button(4).whileTrue(new RunCommand(() -> 
       drivebase.aimAtSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
        m_vision.limelight_range_and_aim_proportional(VisionConstants.speakerTargets)), drivebase));
+      //m_driverController.button(4).whileTrue(new RunCommand(() ->
+      //drivebase.alignWithAmp(MathUtil.applyDeadband(m_driverController.getRawAxis(2), OperatorConstants.LEFT_X_DEADBAND), 
+      //m_vision.limelight_red_amp_proposal(VisionConstants.passingTargets)), drivebase )).onFalse(new RunCommand(() -> m_vision.resetAmpGate()));
 
     /*m_driverController.button(3).whileTrue(new ParallelCommandGroup( new aimTele(drivebase, m_vision, 
       MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), VisionConstants.passingTargets), 

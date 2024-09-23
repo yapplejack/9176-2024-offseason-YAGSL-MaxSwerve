@@ -846,6 +846,19 @@ public class SwerveDrive
     kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, getYaw()));
   }
 
+  public void resetOdometry180(Pose2d pose)
+  {
+    odometryLock.lock();
+    if(UsingPoseEstimator == true)
+    {
+      swerveDrivePoseEstimator.resetPosition(getYaw().plus(Rotation2d.fromDegrees(180)), getModulePositions(), pose);
+    }
+    odometry.resetPosition(getYaw(), getModulePositions(), pose);
+    odometryPose = odometry.getPoseMeters();
+    odometryLock.unlock();
+    kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, getYaw()));
+  }
+
   /**
    * Post the trajectory to the field
    *

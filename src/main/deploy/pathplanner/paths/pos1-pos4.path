@@ -39,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Gay Paths",
+  "folder": null,
   "previewStartingState": {
-    "rotation": -139.3987053549955,
+    "rotation": 40.599999999999994,
     "velocity": 0
   },
   "useDefaultConstraints": true
