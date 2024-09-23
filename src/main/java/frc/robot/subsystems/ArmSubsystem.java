@@ -225,6 +225,34 @@ public class ArmSubsystem extends SubsystemBase {
         return false;
     }
 
+    public boolean raiseArmAbsWithAutoLeveling(double position){
+        double ref = position;
+        if(profile.equals(ampProfile))
+        {
+            profile = defaultProfile;
+            m_pidController.setP(kP);
+        }
+        currentGoal = ref;
+        updateMotionProfile();
+
+
+        //double pidOut = MathUtil.clamp(
+        //    m_AbsPidController.calculate(armAbsEncoder.getPosition(),ref),
+        //    Constants.ArmConstants.kArmMinOutput, Constants.ArmConstants.kArmMaxOutput);
+        //m_pidController.setReference(setpointState.position, ControlType.kPosition);
+
+        //m_armRight.
+            
+        //SmartDashboard.putNumber("Arm Abs Target Pos", ref);
+ //       m_armRight.set(pidOut);
+        
+        //if(atPosition(position))
+       // {
+       //     return true;
+       // }
+        return false;
+    }
+
     public void updatePID() 
     {
         m_pidController.setP(kP);

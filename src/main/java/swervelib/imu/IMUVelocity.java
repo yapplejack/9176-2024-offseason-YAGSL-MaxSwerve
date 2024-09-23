@@ -1,17 +1,9 @@
 package swervelib.imu;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import edu.wpi.first.hal.CANData;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import swervelib.imu.SwerveIMU;
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.math.util.Units;
 
 
 public class IMUVelocity {
@@ -23,7 +15,6 @@ public class IMUVelocity {
     private double timestamp = 0.0;
     private Rotation2d position = new Rotation2d();
     private double velocity = 0.0;
-    private double updateCount = 0.0;
 
     public IMUVelocity(SwerveIMU gyro)
     {
@@ -41,9 +32,6 @@ public class IMUVelocity {
 
     private void update() 
     {
-        //check isFresh
-        //boolean isFresh = updateCount < gyro.getUpdateCount();
-        //updateCount = gyro.getUpdateCount();
         double newTimestamp = RobotController.getFPGATime();
         Rotation2d newPosition = Rotation2d.fromRadians(gyro.getRotation3d().getZ());
 
