@@ -182,13 +182,20 @@ public final class Constants
       {
           add(4.0);
           add(7.0);
-          add(12.0);
       }
     };
 
     public static final List<Double> passingTargets = new ArrayList<Double>() {
       {
         add(13.0);
+        add(14.0);
+      }
+    };
+
+    public static final List<Double> ampTargets = new ArrayList<Double>() {
+      {
+        add(12.0);
+        add(7.0);
         add(14.0);
       }
     };

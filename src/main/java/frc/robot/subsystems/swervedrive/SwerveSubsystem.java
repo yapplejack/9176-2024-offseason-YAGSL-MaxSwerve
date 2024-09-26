@@ -247,20 +247,16 @@ public class SwerveSubsystem extends SubsystemBase
   }
   */
 
-  public void aimAtSpeaker(Double translationY, Double limelightAim, Double limelightRange)
+  public void aimAtSpeaker(Double translationY, Double TranslationX, Double limelightAim)
   {
-          /*drive(ChassisSpeeds.fromRobotRelativeSpeeds(limelightRange,
-                                                      translationY,
-                                                      limelightAim,
-                                                      getHeading())*/
-            swerveDrive.drive(new Translation2d(limelightRange * swerveDrive.getMaximumVelocity(),
+            swerveDrive.drive(new Translation2d(TranslationX * swerveDrive.getMaximumVelocity(),
                                           translationY * swerveDrive.getMaximumVelocity()),
                         limelightAim * swerveDrive.getMaximumAngularVelocity(),
                         false,
                         false);
   }
 
-  public void aimAtSpeaker(double translationY, double[] limelightValues)
+  public void aimAndRangeSpeaker(double translationY, double[] limelightValues)
   {
           /*drive(ChassisSpeeds.fromRobotRelativeSpeeds(limelightRange,
                                                       translationY,
@@ -280,6 +276,11 @@ public class SwerveSubsystem extends SubsystemBase
                         limelightValues[2] * swerveDrive.getMaximumAngularVelocity(),
                         false,
                         false);
+  }
+
+  public void testValuesFromLimelight(double garbage)
+  {
+
   }
 
   /*1*

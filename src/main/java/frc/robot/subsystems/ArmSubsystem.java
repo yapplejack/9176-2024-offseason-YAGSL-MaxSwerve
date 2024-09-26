@@ -226,6 +226,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public boolean raiseArmAbsWithAutoLeveling(double position){
+        SmartDashboard.putNumber("ArmPostionLimelight", position);
         double ref = position;
         if(profile.equals(ampProfile))
         {

@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -30,11 +31,13 @@ public class VisionSubsystem extends SubsystemBase {
 
         //TODO: CURRENTLY THE DISTANCE VALUE IS UNKNOWN, we probably want one or two more values, 2 shoots between pod and sub probably
         //Subshoot
-        distanceMap.put(10.0, 53.0);
+        distanceMap.put(48.57, 53.0);
         //Limelight autodistance shot (podshot)
-        distanceMap.put(100.0, 35.0);
+        distanceMap.put(109.7, 35.5);
+        //Mid long shot
+        distanceMap.put(168.0, 31.0);
         //Long Range Shot
-        distanceMap.put(150.0, 26.25);
+        distanceMap.put(215.35, 27.25);
 
     }
 
@@ -57,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
     // if it is too high, the robot will oscillate around.
     // if it is too low, the robot will never reach its target
     // if the robot never turns in the correct direction, kP should be inverted.
-    double kP = .08; // .025
+    double kP = .0014; // .025
     // tx ranges from (-hfov/2) to (hfov/2) in degrees. If your target is on the rightmost edge of 
     // your limelight 3 feed, tx should return roughly 31 degrees.
     double targetingAngularVelocity = LimelightHelpers.getTX("limelight") * kP;
@@ -137,11 +140,10 @@ public class VisionSubsystem extends SubsystemBase {
     return velocities;
   }
 
-  //TODO: make this work for both sides, and simply get the side of the field from var alliance = DriverStation.getAlliance();
-  public double[] limelight_red_amp_proposal(List<Double> targets)
+  public double[] limelight_amp_proposal(List<Double> targets)
   {
     double[] velocities = new double[3];
-    //X, Y, rot
+    //[X, Y, rot] order in array
     // kP (constant of proportionality)
     // this is a hand-tuned number that determines the aggressiveness of our proportional control loop
     // if it is too high, the robot will oscillate around.
@@ -162,26 +164,45 @@ public class VisionSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Limelight/TargetIDDetected", true);
 
     Pose3d cameraPose = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+    if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red)
+    {
+      velocities[0] = (cameraPose.getX() - 2.7) * kPTranslateX;
+      velocities[0] *=  Constants.MAX_SPEED;
+      velocities[0] *= -1.0;
 
-    velocities[0] = (cameraPose.getX() - 7.0) * kPTranslateX;
-    velocities[0] *=  Constants.MAX_SPEED;
-    velocities[0] *= -1.0;
+      velocities[1] = (cameraPose.getY() - .73) * kPTranslateY;
+      velocities[1] *= Constants.MAX_SPEED;
+      velocities[1] *= 1.0;
 
-    velocities[1] = (cameraPose.getY() + 14.35) * kPTranslateY;
-    velocities[1] *= Constants.MAX_SPEED;
-    velocities[1] *= 1.0;
+      velocities[2] = (cameraPose.getRotation().getZ() + 19) * kPAim;
+      velocities[2] *=  6.283185307179586;
+      velocities[2] *= -1.0;
+    }
+    else
+    {
+      velocities[0] = (cameraPose.getX() - 7.0) * kPTranslateX;
+      velocities[0] *=  Constants.MAX_SPEED;
+      velocities[0] *= -1.0;
 
-    velocities[2] = (cameraPose.getRotation().getZ()) * kPAim;
-    velocities[2] *=  6.283185307179586;
-    velocities[2] *= -1.0;
+      velocities[1] = (cameraPose.getY() + 14.35) * kPTranslateY;
+      velocities[1] *= Constants.MAX_SPEED;
+      velocities[1] *= 1.0;
+
+      velocities[2] = (cameraPose.getRotation().getZ()) * kPAim;
+      velocities[2] *=  6.283185307179586;
+      velocities[2] *= -1.0;
+    }
+    
     
     return velocities;
   }
 
   public double limelight_arm_aim_0to1(List<Double> targets)
   {
+    SmartDashboard.putNumber("Limelight/armSetpoint", 0.0);
     if(!targets.contains(LimelightHelpers.getFiducialID("limelight")))
     {
+      SmartDashboard.putNumber("Limelight/armSetpoint", .125);
       return 0.125;
     }
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -211,6 +232,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     //distanceMap.get() will linearly inpterpet the correct angle, and we clamp it between acceptable measurements for the arm position
     double armSetpoint = MathUtil.clamp(distanceMap.get(distanceFromLimelightToGoalInches)/360, 0.05, 0.1527);
+
+    SmartDashboard.putNumber("Limelight/armSetpoint", armSetpoint);
 
     return armSetpoint;
   }

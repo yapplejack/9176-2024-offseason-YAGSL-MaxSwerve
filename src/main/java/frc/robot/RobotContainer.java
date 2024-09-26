@@ -172,10 +172,15 @@ public class RobotContainer
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
     m_driverController.button(1).onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    m_driverController.button(2).whileTrue( 
+    /*m_driverController.button(2).whileTrue( 
       drivebase.driveCommand(() -> m_driverController.getRawAxis(1), 
     () -> 0.0d, 
-    () -> -m_driverController.getRightX()));
+    () -> -m_driverController.getRightX()));*/
+    //m_driverController.button(2).whileTrue(new RunCommand(()-> drivebase.testValuesFromLimelight(m_vision.limelight_arm_aim_0to1(VisionConstants.speakerTargets))));
+
+    m_driverController.button(2).whileTrue(new ParallelCommandGroup(new RunCommand(() -> m_arm.raiseArmAbsWithAutoLeveling(m_vision.limelight_arm_aim_0to1(VisionConstants.speakerTargets)), m_arm), 
+    new RunCommand(() -> drivebase.aimAtSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_Y_DEADBAND),
+      MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND), m_vision.limelight_aim_proportional()), drivebase), new RunShooter(m_shooter)));
 
     //m_driverController.button(2).whileTrue(new RunCommand(() -> drivebase.driveCommand(
     //  () -> MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
@@ -189,19 +194,20 @@ public class RobotContainer
 
 
       m_driverController.button(4).whileTrue(new RunCommand(() -> 
-      drivebase.aimAtSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
+      drivebase.aimAndRangeSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
        m_vision.limelight_range_and_aim_proportional(VisionConstants.speakerTargets)), drivebase));
       //m_driverController.button(4).whileTrue(new RunCommand(() ->
       //drivebase.alignWithAmp(MathUtil.applyDeadband(m_driverController.getRawAxis(2), OperatorConstants.LEFT_X_DEADBAND), 
       //m_vision.limelight_red_amp_proposal(VisionConstants.passingTargets)), drivebase )).onFalse(new RunCommand(() -> m_vision.resetAmpGate()));
 
     /*m_driverController.button(3).whileTrue(new ParallelCommandGroup( new aimTele(drivebase, m_vision, 
-      MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), VisionConstants.passingTargets), 
+      MathUtil.applyDeadband(m_dri
+      verController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), VisionConstants.passingTargets), 
       new ArmToPosition(m_arm, armPositions.PASS), new PassShooter(m_shooter) ));*/
 
      m_driverController.button(3).whileTrue(new ParallelCommandGroup( new RunCommand(() -> 
-      drivebase.aimAtSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-       m_vision.limelight_range_and_aim_proportional(VisionConstants.speakerTargets)), drivebase), 
+      drivebase.aimAndRangeSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
+       m_vision.limelight_range_and_aim_proportional(VisionConstants.passingTargets)), drivebase), 
       new ArmToPosition(m_arm, armPositions.PASS), new PassShooter(m_shooter) ));
 
     m_driverController.axisGreaterThan(3, -.5).whileTrue(new transferToAmpback(m_feeder, m_indexer));
@@ -216,7 +222,9 @@ public class RobotContainer
     //Intake Note
     m_driverController.R1().whileTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.INTAKE), new intakeFromFloor(m_intake, m_feeder, m_indexer))).onFalse(new ArmToPosition(m_arm, armPositions.INTAKE));
     //Stow arm
-    m_driverController.L1().onTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.INTAKE), new intakeFromFloorAmp(m_intake, m_feeder, m_indexer))).onFalse(new ArmToPosition(m_arm, armPositions.INTAKE));
+    //m_driverController.L1().onTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.INTAKE), new intakeFromFloorAmp(m_intake, m_feeder, m_indexer))).onFalse(new ArmToPosition(m_arm, armPositions.INTAKE));
+
+    m_driverController.button(1).whileTrue(new RunCommand(() -> drivebase.alignWithAmp(m_vision.limelight_amp_proposal(VisionConstants.ampTargets)), drivebase));
 
     m_driverController.button(12).onTrue(new ArmToPosition(m_arm, armPositions.STOWED));
     //m_driverController.button(2).whileTrue(new findColor(m_indexer));

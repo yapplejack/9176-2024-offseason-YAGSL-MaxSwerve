@@ -7,14 +7,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class ArmToPosition extends Command {
     private ArmSubsystem m_arm;
     private ArmSubsystem.armPositions m_targetPos;
+    private double armPositionLimelight = .1;
     private boolean m_keepRunning;
     private boolean reachedTarget = false;
+    private boolean usingLimeligthArm = false;
     //private double m_startTime = 0;
 
     public ArmToPosition(ArmSubsystem arm, ArmSubsystem.armPositions pos){
         m_arm = arm;
         m_targetPos = pos;
         m_keepRunning = false;
+        armPositionLimelight = .1;
         addRequirements(m_arm);
     }
 
@@ -22,6 +25,16 @@ public class ArmToPosition extends Command {
         m_arm = arm;
         m_targetPos = pos;
         m_keepRunning = keepRunning;
+        armPositionLimelight = .1;
+        addRequirements(m_arm);
+    }
+
+    public ArmToPosition(ArmSubsystem arm, double position)
+    {
+        m_arm = arm;
+        armPositionLimelight = position;
+        m_keepRunning = false;
+        usingLimeligthArm = true;
         addRequirements(m_arm);
     }
 
@@ -36,7 +49,14 @@ public class ArmToPosition extends Command {
 
     @Override
     public void execute(){
-       reachedTarget = m_arm.raiseArmAbs(m_targetPos);
+        if(usingLimeligthArm == false)
+        {
+          reachedTarget = m_arm.raiseArmAbs(m_targetPos);
+        }
+        else
+        {   
+            reachedTarget = m_arm.raiseArmAbsWithAutoLeveling(armPositionLimelight);
+        }
     }
 
     @Override
