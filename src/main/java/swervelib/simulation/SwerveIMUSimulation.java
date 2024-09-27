@@ -29,6 +29,8 @@ public class SwerveIMUSimulation
    */
   private       double angle;
 
+  private Rotation3d offset      = new Rotation3d();
+
   /**
    * Create the swerve drive IMU simulation.
    */
@@ -69,6 +71,11 @@ public class SwerveIMUSimulation
     return new Rotation2d();
   }
 
+  public void setOffset(Rotation3d offset)
+  {
+    this.offset = offset;
+  }
+
   /**
    * Gets the estimated gyro {@link Rotation3d} of the robot.
    *
@@ -76,7 +83,7 @@ public class SwerveIMUSimulation
    */
   public Rotation3d getGyroRotation3d()
   {
-    return new Rotation3d(0, 0, angle);
+    return new Rotation3d(0, 0, angle).minus(this.offset);
   }
 
   /**

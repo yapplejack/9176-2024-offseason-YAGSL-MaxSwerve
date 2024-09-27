@@ -273,9 +273,9 @@ public class SwerveSubsystem extends SubsystemBase
   public void alignWithAmp(double translationX, double translationY)
   {
     double yawPosition = 0;
-    if(DriverStation.getAlliance().equals(DriverStation.Alliance.Blue))
+    if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
     {
-      yawPosition = swerveDrive.getYaw().minus(Rotation2d.fromDegrees(90.0)).getRadians() * -1 * .25;
+      yawPosition = swerveDrive.getYaw().plus(Rotation2d.fromDegrees(90.0)).getRadians() * -1 * .25;
     }
     else
     {
@@ -285,7 +285,7 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.drive(new Translation2d(translationX * swerveDrive.getMaximumVelocity(),
                                           translationY * swerveDrive.getMaximumVelocity()),
                         yawPosition * swerveDrive.getMaximumAngularVelocity(),
-                        false,
+                        true,
                         false);
   }
 
@@ -349,6 +349,19 @@ public class SwerveSubsystem extends SubsystemBase
       swerveDrive.drive(new Translation2d(
                             translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
                             translationY.getAsDouble() * swerveDrive.getMaximumVelocity()),
+                        angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
+                        true,
+                        false);
+    });
+  }
+
+    public Command driveCommandSim(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX)
+  {
+    return run(() -> {
+      // Make the robot move
+      swerveDrive.drive(new Translation2d(
+                            translationX.getAsDouble() * swerveDrive.getMaximumVelocity() * -1,
+                            translationY.getAsDouble() * swerveDrive.getMaximumVelocity() * -1),
                         angularRotationX.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
                         true,
                         false);

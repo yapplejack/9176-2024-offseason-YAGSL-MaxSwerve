@@ -141,7 +141,7 @@ public class RobotContainer
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the angular velocity of the robot
-    Command driveFieldOrientedVeloSim = drivebase.driveCommand(() -> m_driverController.getRawAxis(1), 
+    Command driveFieldOrientedVeloSim = drivebase.driveCommandSim(() -> m_driverController.getRawAxis(1), 
     () -> m_driverController.getRawAxis(0), 
     () -> -m_driverController.getRightX());
 
@@ -223,8 +223,8 @@ public class RobotContainer
     //Stow arm
     //m_driverController.L1().onTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.INTAKE), new intakeFromFloorAmp(m_intake, m_feeder, m_indexer))).onFalse(new ArmToPosition(m_arm, armPositions.INTAKE));
 
-    m_driverController.L1().whileTrue(new RunCommand(() -> drivebase.alignWithAmp(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_Y_DEADBAND),
-      -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND)), drivebase));
+    m_driverController.L1().whileTrue(new RunCommand(() -> drivebase.alignWithAmp(MathUtil.applyDeadband(-m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
+      -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_Y_DEADBAND)), drivebase));
 
     m_driverController.button(12).onTrue(new ArmToPosition(m_arm, armPositions.STOWED));
     //m_driverController.button(2).whileTrue(new findColor(m_indexer));

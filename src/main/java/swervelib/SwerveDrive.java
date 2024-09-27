@@ -940,7 +940,8 @@ public class SwerveDrive
     // simulated
     if (SwerveDriveTelemetry.isSimulation)
     {
-      simIMU.setAngle(0);
+      //simIMU.setAngle(0);
+      setGyroOffset(simIMU.getGyroRotation3d());
     } else
     {
       setGyroOffset(imu.getRawRotation3d());
@@ -948,7 +949,13 @@ public class SwerveDrive
     imuReadingCache.update();
     swerveController.lastAngleScalar = 0;
     lastHeadingRadians = 0;
-    resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+    if (SwerveDriveTelemetry.isSimulation){
+      resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+    }
+    else
+    {
+      resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+    }
   }
 
   /**
@@ -1288,7 +1295,7 @@ public class SwerveDrive
   {
     if (SwerveDriveTelemetry.isSimulation)
     {
-      simIMU.setAngle(offset.getZ());
+      simIMU.setOffset(offset);
     } else
     {
       imu.setOffset(offset);
