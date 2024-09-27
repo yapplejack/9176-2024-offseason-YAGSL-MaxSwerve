@@ -207,8 +207,7 @@ public class RobotContainer
 
      m_driverController.button(3).whileTrue(new ParallelCommandGroup( new RunCommand(() -> 
       drivebase.aimAndRangeSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-       m_vision.limelight_range_and_aim_proportional(VisionConstants.passingTargets)), drivebase), 
-      new ArmToPosition(m_arm, armPositions.PASS), new PassShooter(m_shooter) ));
+       m_vision.limelight_range_and_aim_proportional(VisionConstants.passingTargets)), drivebase)));
 
     m_driverController.axisGreaterThan(3, -.5).whileTrue(new transferToAmpback(m_feeder, m_indexer));
     m_driverController.axisGreaterThan(4, -.5).onTrue(new transferToShooter(m_feeder, m_indexer));
@@ -224,7 +223,8 @@ public class RobotContainer
     //Stow arm
     //m_driverController.L1().onTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.INTAKE), new intakeFromFloorAmp(m_intake, m_feeder, m_indexer))).onFalse(new ArmToPosition(m_arm, armPositions.INTAKE));
 
-    m_driverController.button(1).whileTrue(new RunCommand(() -> drivebase.alignWithAmp(m_vision.limelight_amp_proposal(VisionConstants.ampTargets)), drivebase));
+    m_driverController.L1().whileTrue(new RunCommand(() -> drivebase.alignWithAmp(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_Y_DEADBAND),
+      -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND)), drivebase));
 
     m_driverController.button(12).onTrue(new ArmToPosition(m_arm, armPositions.STOWED));
     //m_driverController.button(2).whileTrue(new findColor(m_indexer));
@@ -238,7 +238,9 @@ public class RobotContainer
     new RunShooter(m_shooter))).onFalse(new ArmToPosition(m_arm, armPositions.SUBSHOT));//.and(m_manipController.button(6)).whileTrue(new SequentialCommandGroup
     //(new ReverseFeeder(m_feeder), new ParallelCommandGroup(new RunFeeder(m_feeder), new RunIndexerShooter(m_indexer))));
 
-    m_manipController.button(3).whileTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.PODSHOT), new RunShooter(m_shooter))).onFalse(new ArmToPosition(m_arm, armPositions.PODSHOT));
+    m_manipController.button(3).whileTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.PASS), new PassShooter(m_shooter)));
+
+    //m_manipController.button(3).whileTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.PODSHOT), new RunShooter(m_shooter))).onFalse(new ArmToPosition(m_arm, armPositions.PODSHOT));
     //Shoot into speaker from pod
     //m_manipController.button(3).whileTrue(new ParallelCommandGroup(new ArmToPosition(m_arm, armPositions.PODSHOT), 
     //new RunShooter(m_shooter))).and(m_manipController.button(6).whileTrue(new SequentialCommandGroup

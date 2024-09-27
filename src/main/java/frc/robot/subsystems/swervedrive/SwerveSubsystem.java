@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
 import java.io.File;
+import java.sql.Driver;
 import java.util.function.DoubleSupplier;
 //import org.photonvision.PhotonCamera;
 //import org.photonvision.targeting.PhotonPipelineResult;
@@ -269,11 +270,21 @@ public class SwerveSubsystem extends SubsystemBase
                         false);
   }
 
-  public void alignWithAmp(double[] limelightValues)
+  public void alignWithAmp(double translationX, double translationY)
   {
-    swerveDrive.drive(new Translation2d(limelightValues[1] * swerveDrive.getMaximumVelocity(),
-                                          limelightValues[0] * swerveDrive.getMaximumVelocity()),
-                        limelightValues[2] * swerveDrive.getMaximumAngularVelocity(),
+    double yawPosition = 0;
+    if(DriverStation.getAlliance().equals(DriverStation.Alliance.Blue))
+    {
+      yawPosition = swerveDrive.getYaw().minus(Rotation2d.fromDegrees(90.0)).getRadians() * -1 * .25;
+    }
+    else
+    {
+      yawPosition = swerveDrive.getYaw().minus(Rotation2d.fromDegrees(90.0)).getRadians() * -1 * .25;
+    }
+    SmartDashboard.putNumber("yawPosition", yawPosition);
+    swerveDrive.drive(new Translation2d(translationX * swerveDrive.getMaximumVelocity(),
+                                          translationY * swerveDrive.getMaximumVelocity()),
+                        yawPosition * swerveDrive.getMaximumAngularVelocity(),
                         false,
                         false);
   }

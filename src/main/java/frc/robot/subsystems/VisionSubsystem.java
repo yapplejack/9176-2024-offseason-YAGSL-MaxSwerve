@@ -19,6 +19,7 @@ public class VisionSubsystem extends SubsystemBase {
     NetworkTableEntry ta;
     boolean rotateToAlignWithAmp = false; 
     InterpolatingDoubleTreeMap distanceMap;
+    double previousPosition = .125;
     public VisionSubsystem()
     {
         table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -33,11 +34,11 @@ public class VisionSubsystem extends SubsystemBase {
         //Subshoot
         distanceMap.put(48.57, 53.0);
         //Limelight autodistance shot (podshot)
-        distanceMap.put(109.7, 35.5);
+        distanceMap.put(109.7, 35.75);
         //Mid long shot
-        distanceMap.put(168.0, 31.0);
+        distanceMap.put(168.0, 30.25);
         //Long Range Shot
-        distanceMap.put(215.35, 27.25);
+        distanceMap.put(215.35, 27.0);
 
     }
 
@@ -151,7 +152,7 @@ public class VisionSubsystem extends SubsystemBase {
     // if the robot never turns in the correct direction, kP should be inverted.
     double kPTranslateX = .0225;
     double kPTranslateY = .0225;
-    double kPAim = .0014;
+    double kPAim = .0015;
     // tx ranges from (-hfov/2) to (hfov/2) in degrees. If your target is on the rightmost edge of 
     // your limelight 3 feed, tx should return roughly 31 degrees.
     if(!targets.contains(LimelightHelpers.getFiducialID("limelight")))
@@ -161,22 +162,26 @@ public class VisionSubsystem extends SubsystemBase {
       velocities[2] = 0;
       return velocities;
     }
-    SmartDashboard.putBoolean("Limelight/TargetIDDetected", true);
 
     Pose3d cameraPose = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
     if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red)
     {
-      velocities[0] = (cameraPose.getX() - 2.7) * kPTranslateX;
+      //velocities[0] = (cameraPose.getX() - 2.7) * kPTranslateX;
+      velocities[0] = (cameraPose.getX() - 2.4) * kPTranslateX;
       velocities[0] *=  Constants.MAX_SPEED;
-      velocities[0] *= -1.0;
+      velocities[0] *= 1.0;
+      SmartDashboard.putNumber("Limelight/X", cameraPose.getX() );
 
-      velocities[1] = (cameraPose.getY() - .73) * kPTranslateY;
+      //velocities[1] = (cameraPose.getY() - .73) * kPTranslateY;
+      velocities[1] = (cameraPose.getY() - .8) * kPTranslateY;
       velocities[1] *= Constants.MAX_SPEED;
-      velocities[1] *= 1.0;
+      velocities[1] *= -1.0;
+      SmartDashboard.putNumber("Limelight/Y", cameraPose.getY());
 
-      velocities[2] = (cameraPose.getRotation().getZ() + 19) * kPAim;
+      velocities[2] = (cameraPose.getRotation().getZ() + .26) * kPAim;
       velocities[2] *=  6.283185307179586;
       velocities[2] *= -1.0;
+      SmartDashboard.putNumber("Limelight/Z", cameraPose.getRotation().getZ());
     }
     else
     {
@@ -203,7 +208,7 @@ public class VisionSubsystem extends SubsystemBase {
     if(!targets.contains(LimelightHelpers.getFiducialID("limelight")))
     {
       SmartDashboard.putNumber("Limelight/armSetpoint", .125);
-      return 0.125;
+      return previousPosition;
     }
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry ty = table.getEntry("ty");
@@ -234,6 +239,8 @@ public class VisionSubsystem extends SubsystemBase {
     double armSetpoint = MathUtil.clamp(distanceMap.get(distanceFromLimelightToGoalInches)/360, 0.05, 0.1527);
 
     SmartDashboard.putNumber("Limelight/armSetpoint", armSetpoint);
+
+    previousPosition = armSetpoint;
 
     return armSetpoint;
   }
