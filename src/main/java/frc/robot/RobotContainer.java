@@ -122,8 +122,8 @@ public class RobotContainer
     // right stick controls the desired angle NOT angular rotation
 
     AbsoluteDrive closedAbsoluteDriveAdv = new AbsoluteDrive(drivebase,
-                                                                   () -> m_driverController.getRawAxis(1), 
-    () -> m_driverController.getRawAxis(0), 
+                                                                   () -> -m_driverController.getRawAxis(1), 
+    () -> -m_driverController.getRawAxis(0), 
     () -> -m_driverController.getRightX(),
     () -> -m_driverController.getRightY());
 
@@ -131,8 +131,8 @@ public class RobotContainer
     () -> MathUtil.applyDeadband(-m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND), 
     () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OperatorConstants.RIGHT_X_DEADBAND), 1.0);
 
-    Command driveFieldOrintedAngle = drivebase.driveCommand(() -> m_driverController.getRawAxis(1), 
-    () -> m_driverController.getRawAxis(0), 
+    Command driveFieldOrintedAngle = drivebase.driveCommand(() -> -m_driverController.getRawAxis(1), 
+    () -> -m_driverController.getRawAxis(0), 
     () -> -m_driverController.getRightX(),
     () -> -m_driverController.getRightY());
 
@@ -152,7 +152,7 @@ public class RobotContainer
         () -> m_driverController.getLeftY());
 
     drivebase.setDefaultCommand(
-      !RobotBase.isSimulation() ? driveFieldOrientedVelo : driveFieldOrientedVeloSim);
+      !RobotBase.isSimulation() ? driveFieldOrintedAngle : driveFieldOrientedVeloSim);
     
   }
   //test
@@ -207,7 +207,7 @@ public class RobotContainer
 
      m_driverController.button(3).whileTrue(new ParallelCommandGroup( new RunCommand(() -> 
       drivebase.aimAndRangeSpeaker(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-       m_vision.limelight_range_and_aim_proportional(VisionConstants.passingTargets)), drivebase)));
+       m_vision.limelight_range_and_aim_pass_proportional(VisionConstants.passingTargets)), drivebase)));
 
     m_driverController.axisGreaterThan(3, -.5).whileTrue(new transferToAmpback(m_feeder, m_indexer));
     m_driverController.axisGreaterThan(4, -.5).onTrue(new transferToShooter(m_feeder, m_indexer));

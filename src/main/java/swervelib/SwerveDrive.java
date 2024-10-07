@@ -59,7 +59,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveDrive
 {
 
-  /**
+    /**
    * Swerve Kinematics object.
    */
   public final  SwerveDriveKinematics    kinematics;
@@ -108,6 +108,24 @@ public class SwerveDrive
    */
   public        boolean                  chassisVelocityCorrection                       = true;
   /**
+   * Correct chassis velocity in {@link SwerveDrive#setChassisSpeeds(ChassisSpeeds chassisSpeeds)} (auto) using 254's
+   * correction during auto.
+   */
+  public        boolean                  autonomousChassisVelocityCorrection             = true;
+  /**
+   * Correct for skew that scales with angular velocity in {@link SwerveDrive#drive(Translation2d, double, boolean, boolean)}
+   */
+  public        boolean                  angularVelocityCorrection                      = false;
+    /**
+   * Correct for skew that scales with angular velocity in {@link SwerveDrive#setChassisSpeeds(ChassisSpeeds chassisSpeeds)}
+   * during auto.
+   */
+  public        boolean                  autonomousAngularVelocityCorrection            = false;
+  /**
+   * Angular Velocity Correction Coefficent (expected values between -0.15 and 0.15).
+   */
+  public        double                   angularVelocityCoefficient                     = 0;
+  /**
    * Whether to correct heading when driving translationally. Set to true to enable.
    */
   public        boolean                  headingCorrection                               = false;
@@ -123,6 +141,11 @@ public class SwerveDrive
    * Swerve IMU device for sensing the heading of the robot.
    */
   private       SwerveIMU                imu;
+  /**
+   * Class that calculates robot's yaw velocity using IMU measurements. Used for angularVelocityCorrection in 
+   * {@link SwerveDrive#drive(Translation2d, double, boolean, boolean)}.
+   */
+  private       IMUVelocity             imuVelocity;
   /**
    * Simulation of the swerve drive.
    */
@@ -157,8 +180,6 @@ public class SwerveDrive
   protected SwerveDriveOdometry odometry;
 
   protected Pose2d odometryPose = new Pose2d();
-
-  private IMUVelocity imuVelo;
 
   /**
    * Creates a new swerve drivebase subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
@@ -198,8 +219,6 @@ public class SwerveDrive
 
     this.swerveModules = config.modules;
 
-    imuVelo = new IMUVelocity(imu, 1.0/60.0, 5); //good at 5 taps
-
     odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
     swerveDrivePoseEstimator =
         new SwerveDrivePoseEstimator(
@@ -212,7 +231,7 @@ public class SwerveDrive
     zeroGyro();
     setMaximumSpeed(maxSpeedMPS);
     //YAGSLDIFF enaable to test different desaturation
-    //setMaximumSpeeds(maxSpeedMPS, 4.8, 4);
+    //setMaximumSpeeds(maxSpeedMPS, 4.8, 11.887);
 
     // Initialize Telemetry
     if (SwerveDriveTelemetry.verbosity.ordinal() >= TelemetryVerbosity.POSE.ordinal())
@@ -546,31 +565,7 @@ public class SwerveDrive
    */
   public void drive(ChassisSpeeds velocity, boolean isOpenLoop, Translation2d centerOfRotationMeters, double rotMulti)
   {
-    //YAGSLDIFF
-    var angularVelocity = new Rotation2d(imuVelo.getVelocity() * 1000000 * ANGULAR_VELOCITY_COEFFICIENT);
-    if(angularVelocity.getRadians() != 0.0){
-      velocity = ChassisSpeeds.fromRobotRelativeSpeeds(
-                    velocity.vxMetersPerSecond,
-                    velocity.vyMetersPerSecond,
-                    velocity.omegaRadiansPerSecond,
-                    getOdometryHeading());
-      velocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, getOdometryHeading().plus(angularVelocity));
-    }
-    //SmartDashboard.putNumber("SwerveAngularVelocity", angularVelocity.getDegrees());
-    SmartDashboard.putNumber("SwerveAngularVelocity", imuVelo.getVelocity() * 1000000);
-
-
-
-    // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
-    // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
-    //YAGSLDIFF we can use a timeStamp over a constant .02
-    double timeStamp = HALUtil.getFPGATime() / 1.0e6;
-    if (chassisVelocityCorrection && (lastTimeStamp > 0.0))
-    {
-      var dt = timeStamp - lastTimeStamp;
-      velocity = discretize(velocity, dt, rotMulti);
-    }
-    lastTimeStamp = timeStamp;
+    velocity = movementOptimizations(velocity, chassisVelocityCorrection, angularVelocityCorrection);
 
     // Heading Angular Velocity Deadband, might make a configuration option later.
     // Originally made by Team 1466 Webb Robotics.
@@ -663,7 +658,7 @@ public class SwerveDrive
     // Desaturates wheel speeds
     if (attainableMaxTranslationalSpeedMetersPerSecond != 0 || attainableMaxRotationalVelocityRadiansPerSecond != 0)
     {
-      SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, adjustedChassisSpeeds,
+      SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, getRobotVelocity(),
                                                   maxSpeedMPS,
                                                   attainableMaxTranslationalSpeedMetersPerSecond,
                                                   attainableMaxRotationalVelocityRadiansPerSecond);
@@ -720,30 +715,7 @@ public class SwerveDrive
     SwerveDriveTelemetry.desiredChassisSpeeds[0] = chassisSpeeds.vxMetersPerSecond;
     SwerveDriveTelemetry.desiredChassisSpeeds[2] = Math.toDegrees(chassisSpeeds.omegaRadiansPerSecond);
 
-    var angularVelocity = new Rotation2d(imuVelo.getVelocity() * 1000000 * ANGULAR_VELOCITY_COEFFICIENT);
-    if(angularVelocity.getRadians() != 0.0){
-      chassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                    chassisSpeeds.vxMetersPerSecond,
-                    chassisSpeeds.vyMetersPerSecond,
-                    chassisSpeeds.omegaRadiansPerSecond,
-                    getOdometryHeading());
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getOdometryHeading().plus(angularVelocity));
-    }
-    //SmartDashboard.putNumber("SwerveAngularVelocity", angularVelocity.getDegrees());
-    SmartDashboard.putNumber("SwerveAngularVelocity", imuVelo.getVelocity() * 1000000);
-
-
-
-    // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
-    // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
-    //YAGSLDIFF we can use a timeStamp over a constant .02
-    double timeStamp = HALUtil.getFPGATime() / 1.0e6;
-    if (chassisVelocityCorrection && (lastTimeStamp > 0.0))
-    {
-      var dt = timeStamp - lastTimeStamp;
-      chassisSpeeds = discretize(chassisSpeeds, dt, 1);
-    }
-    lastTimeStamp = timeStamp;
+    movementOptimizations(chassisSpeeds, autonomousChassisVelocityCorrection, autonomousAngularVelocityCorrection);
 
     // Heading Angular Velocity Deadband, might make a configuration option later.
     // Originally made by Team 1466 Webb Robotics.
@@ -1461,6 +1433,86 @@ public class SwerveDrive
   {
     chassisVelocityCorrection = enable;
     discretizationdtSeconds = dtSeconds;
+  }
+  public void setChassisDiscretization(boolean useInTeleop, boolean useInAuto, double dtSeconds)
+  {
+    if(!SwerveDriveTelemetry.isSimulation)
+    {
+      chassisVelocityCorrection = useInTeleop;
+      autonomousChassisVelocityCorrection = useInAuto;
+      discretizationdtSeconds = dtSeconds;
+    }
+  }
+
+  /**
+   * Enables angular velocity skew correction in telop and/or autonomous
+   * and sets the angular velocity coefficient for both modes
+   *
+   * @param useInTeleop          Enables angular velocity correction in teleop.
+   * @param useInAuto            Enables angular velocity correction in autonomous.
+   * @param angularVelocityCoeff The angular velocity coefficient. Expected values between -0.15 to 0.15.
+   *                             Start with a value of 0.1, test in teleop.
+   *                             When enabling for the first time if the skew is significantly worse try inverting the value.
+   *                             Tune by moving in a straight line while rotating. Testing is best done with angular velocity controls on the right stick. 
+   *                             Change the value until you are visually happy with the skew.
+   *                             Ensure your tune works with different translational and rotational magnitudes.
+   *                             If this reduces skew in teleop, it may improve auto.
+   */
+  public void setAngularVelocityCompensation(boolean useInTeleop, boolean useInAuto, double angularVelocityCoeff)
+  {
+    if(!SwerveDriveTelemetry.isSimulation)
+    {
+      imuVelocity = IMUVelocity.createIMUVelocity(imu);
+      angularVelocityCorrection = useInTeleop;
+      autonomousAngularVelocityCorrection = useInAuto;
+      angularVelocityCoefficient = angularVelocityCoeff;
+    }
+  }
+
+  /**
+   * Correct for skew that worsens as angular velocity increases
+   * 
+   * @param velocity  The chassis speeds to set the robot to achieve.
+   * @return {@link ChassisSpeeds} of the robot after angular velocity skew correction.
+   */
+  public ChassisSpeeds angularVelocitySkewCorrection(ChassisSpeeds velocity)
+  {
+    var angularVelocity = new Rotation2d(imuVelocity.getVelocity() * angularVelocityCoefficient);
+      if(angularVelocity.getRadians() != 0.0){
+        velocity = ChassisSpeeds.fromRobotRelativeSpeeds(
+                      velocity.vxMetersPerSecond,
+                      velocity.vyMetersPerSecond,
+                      velocity.omegaRadiansPerSecond,
+                      getOdometryHeading());
+        velocity = ChassisSpeeds.fromFieldRelativeSpeeds(velocity, getOdometryHeading().plus(angularVelocity));
+      }
+    return velocity;
+  }
+
+  /**
+   * Enable desired drive corrections
+   * 
+   * @param velocity                         The chassis speeds to set the robot to achieve.
+   * @param useChassisDiscretize             Correct chassis velocity using 254's correction.
+   * @param useAngularVelocitySkewCorrection Use the robot's angular velocity to correct for skew.
+   * @return                                 The chassis speeds after optimizations.
+   */
+  private ChassisSpeeds movementOptimizations(ChassisSpeeds velocity, boolean uesChassisDiscretize, boolean useAngularVelocitySkewCorrection)
+  {
+
+    if(useAngularVelocitySkewCorrection)
+    {
+      velocity = angularVelocitySkewCorrection(velocity);
+    }
+
+    // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
+    // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
+    if (uesChassisDiscretize)
+    {
+      velocity = ChassisSpeeds.discretize(velocity, discretizationdtSeconds);
+    }
+
+    return velocity;
   }
 
 }

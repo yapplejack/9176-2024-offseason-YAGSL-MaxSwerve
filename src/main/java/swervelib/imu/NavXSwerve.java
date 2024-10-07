@@ -70,9 +70,9 @@ public class NavXSwerve extends SwerveIMU
       /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
       /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
       byte refreshRate = 100;
-      gyro = new AHRS(port);
+      //gyro = new AHRS(port);
       //YAGSLDIFF attempt to use a higher refresh rate for the gyro
-      //gyro = new AHRS(port, refreshRate);
+      gyro = new AHRS(port, refreshRate);
       factoryDefault();
       SmartDashboard.putData(gyro);
     } catch (RuntimeException ex)
